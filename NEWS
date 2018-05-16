@@ -1,4 +1,28 @@
 --------------------------------------------------------------------------------
+NephAssess 0.0-0 (2017-04-01)
+--------------------------------------------------------------------------------
+o nephup.R
+  Changed the nephup objects and the function to deal with BMS data.
+  As no slots for BMS data are officially available (for now) from FLR, two extra slots were created as attributes of the stock object. They can be accessed in the following way: 
+  * stock.object@bms: this contains the officially reported BMS
+  * stock.object@bms.n: The length frequencies of BMS obtained from Intercatch.
+  Another change in nephup.R is the way new data are read. Example:
+  nephup.ff<- nephup(wdir=nephup.dir, stock.object=stock.object, lfile="Frsff.txt", bmsfile="BMSff.txt", filenames="File_listFF.txt")
+  Arguments “lfile” and “bmsfile” are respectively the officially reported landings and BMS. Argument “filenames” is a text file which contains the name, year and catch category of any files to be uploaded.
+  An example of code for using nephup.R is provided here:
+  S:\Nephrops\Assessment\Neph2017\NEPHUP\NephUp Files\new_nephup_example.R
+
+o historical HRs.R
+  Renamed function simply to “exploitation.table” (replacing exploitation.table.2015)
+  Added BMS to the calculation of harvest ratios (combined with landings as all BMS are dead)
+
+o plots_advice.r
+  Deleted all the different related functions (“plots.advice.2014”, (“plots.advice.2016, etc) and kept just one “plots.advice”. Not likely to be useful anyway as all plots for advice are now done as standard plots from ICES script.
+
+o tables.R
+  Changed to include a column with BMS landings (if any are reported”
+
+--------------------------------------------------------------------------------
 NephAssess 0.0-0 (2016-11-01)
 --------------------------------------------------------------------------------
 o tv.workup.angle.R

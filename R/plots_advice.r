@@ -1,160 +1,79 @@
-plots.advice<- function(Wkdir, fu, bias, trigger, MSY.hr, international.landings, tv_results, Exploitation_summary)
+plots.advice<- 
+function(wk.dir, f.u, MSY.hr, stock.object, international.landings, tv_results, Exploitation_summary)
 {
+  f.u <- check.fu (f.u)
+  setwd(wk.dir)
 
-setwd(Wkdir)
+  hist.land <- read.csv(international.landings, header=T) 
+  first.disc.yr <-switch(f.u,1990,"fladen"=2000,"jura"=9999)
+  first.catch.yr <- min(read.csv(tv_results, header=T)$year)
+  last.catch.yr <-stock.object@range["maxyear"]
+  hist.land <-subset(hist.land,Year>=first.catch.yr)
+  stock.object <-trim(stock.object,year=first.catch.yr:last.catch.yr); attr(stock.object,"bms.n")<- trim(attr(stock.object,"bms.n"),year=first.catch.yr:last.catch.yr)
+  tot.wt <-seasonSums(quantSums(unitSums(stock.object@landings.n*stock.object@landings.wt))) + seasonSums(quantSums(unitSums(stock.object@bms.n*stock.object@discards.wt)))
+  discards.wt<- seasonSums(quantSums(unitSums(stock.object@discards.n*stock.object@discards.wt)))
+  discards.wt[,hist.land$Year<first.disc.yr] <-NA
+  raising.factor <-hist.land$Total/tot.wt
+  raising.factor[,hist.land$Year>=2011] <-1 
+  hist.land$discards.tonnes <-round(c(discards.wt*raising.factor),0)
 
-win.metafile(paste(fu, "_advice_landings.wmf", sep=""), height=6, width=8, pointsize=16)
-
-#bar plot of landings
-#load(paste(Wkdir,"Nephup/","nephup.fl.new.rdata",sep=""))
-hist.land <- read.csv(international.landings, header=T)
-with(hist.land, barplot(Total,names=Year, col="white", bty="l",axes=T, main=paste(fu," : International Landings",sep="")))
-dev.off()
-
+  win.metafile(paste(f.u, "_advice_landings.wmf", sep=""), height=2.4, width=2.4/0.55, pointsize=12)
+  par(mar=c(1.5, 1.5, 1.5, 0.5))
+  tmp=barplot(rbind(hist.land$Total,hist.land$discards.tonnes)/1000,plot=F, space=1.5)
+  with(hist.land, tmp<- barplot(rbind(Total,discards.tonnes)/1000,names=Year, col=c("#9AC2B7","#F15D2A"), axes=F, axisnames = F, 
+        ylim=c(0,max(hist.land$Total + hist.land$discards.tonnes,na.rm=T)*1.1/1000), space=1.5))
+  legend("topright", legend=c("Discards","Landings"), fill=c("#F15D2A","#9AC2B7"),  inset=0.01, cex=0.6, bty="n", ncol=2)
+  axis(1, at=tmp[seq(1,length(tmp),by=5)], labels=hist.land$Year[seq(1,length(tmp),by=5)],cex.axis=0.6,tck=-0.03, mgp = c(3, 0.06, 0))  
+  axis(2, mgp = c(3, 0.5, 0),las=1,cex.axis=0.6,tck=-0.03)
+  title(ylab="1000 tonnes", cex.lab=0.6,line=0.9)
+  title("Catches", cex.main=0.9,line=0.5)
+  box()
+  dev.off()
 
 ##########################################################
 #UW tv survey
 ##########################################################
-
-
-if( fu == "FU 11")
-{
-	win.metafile(paste(fu, "advice_tv.wmf", sep=""), height=6, width=8, pointsize=16)
-
-	#VMS
-	hist.tv <- read.csv(tv_results, header=T)
-	#adjust for bias correction, 1.2 at the moment
-	hist.tv$abundance.VMS.2 <-hist.tv$abundance.VMS.2/bias
-	hist.tv$confidence.interval.VMS.2 <-hist.tv$confidence.interval.VMS.2/bias
-
-	hist.tv$upper <- with(hist.tv, abundance.VMS.2+confidence.interval.VMS.2)
-	hist.tv$lower <- with(hist.tv, abundance.VMS.2-confidence.interval.VMS.2)
-
-	
-	with(hist.tv, plot(year,abundance.VMS.2, type="l", lty=1, bty="l",lwd=2,xlab="Year", main=paste(fu," :  TV abundance"), ylab="Abundance (millions)", ylim=c(0,max(upper,na.rm=T)*1.05)), pch=1, lty=2)
-	with(hist.tv, points(year,abundance.VMS.2,  pch=19, cex=1.5))
-	#with(hist, lines(YEAR, upper, lty=2, lwd=1.5))
-	#with(hist, lines(YEAR, lower, lty=2, lwd=1.5))
-	yr.int<- subset(hist.tv, year >= 2010)
-	with(yr.int, arrows(year,abundance.VMS.2, year, upper, lty=1, lwd=1.5, angle=90, length=0.1))
-	with(yr.int, arrows(year,abundance.VMS.2,year, lower, lty=1, lwd=1.5, angle=90, length=0.1))
-	#Btrigger is    TV value in 2007
-	abline(h=trigger, lty=2, col="green3" ,lwd=3)
-
-	
-	#Sediment
-	hist.tv <- read.csv(tv_results, header=T)
-	#adjust for bias correction, 1.2 at the moment
-	hist.tv$abundance.sediment <-hist.tv$abundance.sediment/bias
-	hist.tv$confidence.interval.sediment <-hist.tv$confidence.interval.sediment/bias
-
-	hist.tv$upper <- with(hist.tv, abundance.sediment+confidence.interval.sediment)
-	hist.tv$lower <- with(hist.tv, abundance.sediment-confidence.interval.sediment)
-
-	#with(hist.tv, lines(year,abundance.sediment, type="l", lty=2, bty="l",lwd=2,xlab="Year", main=paste(fu," :  TV abundance"), ylab="Abundance (millions)", ylim=c(0,max(upper,na.rm=T)*1.05)))
-	#with(hist.tv, points(year,abundance.sediment,  pch=1, cex=1.5, bg="white"))
-	#with(hist, lines(YEAR, upper, lty=2, lwd=1.5))
-	#with(hist, lines(YEAR, lower, lty=2, lwd=1.5))
-	#with(hist.tv, arrows(year,abundance.sediment, year, upper, lty=1, lwd=1.5, angle=90, length=0.1))
-	#with(hist.tv, arrows(year,abundance.sediment,year, lower, lty=1, lwd=1.5, angle=90, length=0.1))
-	#Btrigger is    TV value in 2007
-	
-	#legend("topleft", legend=c("TV abundance (Sediment)", "TV abundance (VMS)"), lty=c(2,1), pch = c(1,19), bty="n", cex=0.6)
-	
-	abline(h=trigger, lty=2, col="green3" ,lwd=3)
+  
+  hist.tv <- read.csv(tv_results, header=T)
+  tv.series <-data.frame(year=hist.tv$year)
+  first.ci.year <-min(tv.series$year)
+  tv.series$abundance <-hist.tv$abundance
+  tv.series$confidence.interval <-hist.tv$confidence.interval
+ 	tv.series$upper <- with(tv.series, abundance+confidence.interval)
+	tv.series$lower <- with(tv.series, abundance-confidence.interval)	
+	trigger <-min(tv.series$abundance[tv.series$year<2010],na.rm=TRUE)
+  if (f.u == "jura"){trigger <- -100}
+  
+  win.metafile(paste(f.u, "_advice_tv.wmf", sep=""), height=2.4, width=2.4/0.55, pointsize=12)
+  par(mar=c(1.5, 1.5, 1.5, 0.5))  
+  with(tv.series, plot(year,abundance, type="l", lty=1, lwd=3,xlab="", ylab="", axes=F,ylim=c(0,max(upper,na.rm=T)*1.05)))
+  with(tv.series, lines(year,upper, type="l", lty=3, lwd=2))
+  with(tv.series, lines(year,lower, type="l", lty=3, lwd=2))
+  axis(1, at=tv.series$year[seq(1,length(tv.series$year),by=5)], cex.axis=0.6,tck=-0.03, mgp = c(3, 0.08, 0))  
+  axis(2, mgp = c(3, 0.4, 0),las=1,cex.axis=0.6,tck=-0.03)
+  title(ylab="Abundance (millions)", cex.lab=0.6,line=1)
+  title("Stock size index - abundance", cex.main=0.9,line=0.5)
+  box()
+	abline(h=trigger, lty=3, col="#EB6B14" ,lwd=3)
 	dev.off()
-
-} else {
-	
-	win.metafile(paste(fu, "advice_tv.wmf", sep=""), height=6, width=8, pointsize=16)
-	
-	hist.tv <- read.csv(tv_results, header=T)
-	#adjust for bias correction, 1.2 at the moment
-	hist.tv$abundance <-hist.tv$abundance/bias
-	hist.tv$confidence.interval <-hist.tv$confidence.interval/bias
-
-	hist.tv$upper <- with(hist.tv, abundance+confidence.interval)
-	hist.tv$lower <- with(hist.tv, abundance-confidence.interval)
-
-	with(hist.tv, plot(year,abundance, type="l", lty=1, bty="l",lwd=2,xlab="Year", main=paste(fu," :  TV abundance"), ylab="Abundance (millions)", ylim=c(0,max(upper,na.rm=T)*1.05)))
-	with(hist.tv, points(year,abundance,  pch=19, cex=1.5))
-	#with(hist, lines(YEAR, upper, lty=2, lwd=1.5))
-	#with(hist, lines(YEAR, lower, lty=2, lwd=1.5))
-	with(hist.tv, arrows(year,abundance, year, upper, lty=1, lwd=1.5, angle=90, length=0.1))
-	with(hist.tv, arrows(year,abundance,year, lower, lty=1, lwd=1.5, angle=90, length=0.1))
-	#Btrigger is    TV value in 2007
-	abline(h=trigger, lty=2, col="green3" ,lwd=3)
-	dev.off()
-}
-
-
-
 	
 	
 ##########################################################
 #Harvest rates
 ##########################################################     
-
-if(fu=="FU 13 - Sound of Jura")
-{
-	win.metafile(paste(fu, "advice_HR.wmf", sep=""), height=6, width=8, pointsize=16)
-	HRs <- read.csv(Exploitation_summary, header=T)
-	plot(HRs$harvest.ratio~HRs$year, type="l", xlab="Year", ylab="Reported Harvest Rate %", main=paste(fu," :  Harvest rate"),cex=1,bty="l", ylim=c(0, MSY.hr + 1))
-	abline(h=MSY.hr,lty=2,col="green3",lwd=3)
-	dev.off()
-} 
-
-if( fu == "FU 11")
-{
-
-	win.metafile(paste(fu, "advice_HR.wmf", sep=""), height=6, width=8, pointsize=16)
-	
-	#get total number of individuals per year
-
-	HRs <- read.csv(Exploitation_summary, header=T)
-
-	HRs$harvest.ratio.VMS 
-	HRs$harvest.ratio.sediment 
-
-	with(HRs, plot(harvest.ratio.VMS~year, type="l", xlab="Year", ylab="Reported Harvest Rate %", main=paste(fu," :  Harvest rate"),cex=1,bty="l", ylim=c(0, max(harvest.ratio.VMS,na.rm=T))))
-	HRpoints<- subset(HRs, year %in% c(1994,1996))
-	points(HRpoints$year, HRpoints$harvest.ratio.VMS)
-
-	#with(HRs, lines(harvest.ratio.sediment~year, type="l", xlab="Year", ylab="Reported Harvest Rate %", main=paste(fu," :  Harvest rate"),cex=1,bty="l", lty=2))
-
-	#legend("topleft", legend=c("HR (Sediment)", "HR VMS"), lty=c(2,1), bty="n", cex=0.6)
-
-	abline(h=MSY.hr,lty=2,col="green3",lwd=3)
-	
-
-
-	dev.off()
-
-} 
-
-if( fu != "FU 13 - Sound of Jura" & fu != "FU 11")
-
-{
-	win.metafile(paste(fu, "advice_HR.wmf", sep=""), height=6, width=8, pointsize=16)
-	
-	#get total number of individuals per year
-
-	HRs <- read.csv(Exploitation_summary, header=T)
-
-
-	#with(hist, plot(HR~YEAR, type="l", xlab="Year", ylab="Reported Harvest Rate %", main="FU6:  Harvest Rate",cex=1,bty="n", ylim=c(0, max(hist$HR))))
-	#lines(range(hist$YEAR), rep(8.2, 2), lty=2, col="green3" ,lwd=3)
-
-	with(HRs, plot(harvest.ratio~year, type="l", xlab="Year", ylab="Reported Harvest Rate %", main=paste(fu," :  Harvest rate"),cex=1,bty="l", ylim=c(0, max(harvest.ratio,na.rm=T))))
-
-	abline(h=MSY.hr,lty=2,col="green3",lwd=3)
-	#points(HRs[c(1,3),1], HRs[c(1,3),4])
-
-
-	 dev.off()
-}
-
- 
+  win.metafile(paste(f.u, "_advice_HR.wmf", sep=""), height=2.4, width=2.4/0.55, pointsize=12)
+  par(mar=c(1.5, 1.5, 1.5, 0.5))  
+  HRs <- read.csv(Exploitation_summary, header=T)
+  
+  with(HRs, plot(harvest.ratio~year, type="l",cex=1,bty="l", 
+        ylim=c(0, max(harvest.ratio,MSY.hr+1,na.rm=T)), lwd=1.5,axes=F,xlab="",ylab=""))
+  axis(1, at=HRs$year[seq(1,length(HRs$year),by=5)], cex.axis=0.6,tck=-0.03, mgp = c(3, 0.06, 0))  
+  axis(2, mgp = c(3, 0.4, 0),las=1,cex.axis=0.6,tck=-0.03)
+  title(ylab="Harvest Rate (%)", cex.lab=0.6,line=0.9)
+  title("Harvest Rate", cex.main=0.9,line=0.6)
+  box()
+  abline(h=MSY.hr,lty=3,col="#F7A487",lwd=3)
+  dev.off()
 }
  
  

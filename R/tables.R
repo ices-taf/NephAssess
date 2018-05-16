@@ -17,7 +17,8 @@ function(wk.dir, stock, effort.data,
   nephrops.trawl <- otb_cru + ott_cru
   other.trawl <- rowSums(colSums(stock@landings["OTHER",,,,] ))
   creel <- rowSums(colSums(stock@landings["FPO",,,,]))
-  total <- nephrops.trawl + other.trawl + creel
+  bms<- rowSums(colSums(attr(stock,"bms")))
+  total <- nephrops.trawl + other.trawl + creel + bms
 
 
     if (f.u == "north minch")
@@ -25,8 +26,8 @@ function(wk.dir, stock, effort.data,
       Total.2 <- vector("numeric", length=length(year))
       Other.UK <-  vector("numeric", length=length(year))
 	  
-	  tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, total, Other.UK, Total.2))
-      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "Sub Total", "Other UK", "Total")
+	  tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, bms, total, Other.UK, Total.2))
+      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "BMS", "Sub Total", "Other UK", "Total")
     } else
     if (f.u == "clyde")
     {
@@ -34,8 +35,8 @@ function(wk.dir, stock, effort.data,
       Total.2 <- vector("numeric", length=length(year))
       Other.UK <-  vector("numeric", length=length(year))
 
-      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, total, Other.UK, Total.2))
-      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "Sub Total", "Other UK", "Total")
+      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, bms, total, Other.UK, Total.2))
+      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "BMS", "Sub Total", "Other UK", "Total")
     } else
     if (f.u == "south minch")
     {
@@ -43,48 +44,48 @@ function(wk.dir, stock, effort.data,
       Other.UK <-  vector("numeric", length=length(year))
       Ireland <- vector("numeric", length=length(year))
 
-      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, total, Other.UK, Ireland, Total.2))
-      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "Sub Total", "Other UK", "Ireland", "Total")
+      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, bms, total, Other.UK, Ireland, Total.2))
+      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "BMS", "Sub Total", "Other UK", "Ireland", "Total")
     } else
     if (f.u == "forth")
     {
       Total.2 <-vector("numeric", length=length(year))
       Other.UK <-vector("numeric", length=length(year))
       
-      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, total, Other.UK, Total.2))
-      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "Sub Total", "Other UK", "Total")
+      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, bms, total, Other.UK, Total.2))
+      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "BMS", "Sub Total", "Other UK", "Total")
     } else
     if (f.u == "moray")
     {
       Total.2 <-vector("numeric", length=length(year))
       Other.UK <-vector("numeric", length=length(year))
       
-      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, total, Other.UK, Total.2))
-      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "Sub Total", "Other UK", "Total")
+      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, bms, total, Other.UK, Total.2))
+      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "BMS", "Sub Total", "Other UK", "Total")
     } else
     if (f.u == "noup")
     {
       Total.2 <-vector("numeric", length=length(year))
       Other.UK <-vector("numeric", length=length(year))
       
-      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, total, Other.UK, Total.2))
-      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "Sub Total", "Other UK", "Total")
+      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, bms, total, Other.UK, Total.2))
+      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "BMS", "Sub Total", "Other UK", "Total")
     } else
     if (f.u == "fladen")
     {
       Total.2 <-vector("numeric", length=length(year))
       Other.else <-vector("numeric", length= length(year))
       
-      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, total, Other.else, Total.2)) 
-      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "Sub Total", "Other Countries", "Total")
+      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, bms, total, Other.else, Total.2)) 
+      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "BMS", "Sub Total", "Other Countries", "Total")
     } else
     if (f.u == "devil's hole")
     {
       Total.2 <-vector("numeric", length=length(year))
       Other.else <-vector("numeric", length= length(year))
       
-      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, total, Other.else, Total.2)) 
-      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "Sub Total", "Other Countries", "Total")
+      tmp <- data.frame(cbind(year, nephrops.trawl, other.trawl, creel, bms, total, Other.else, Total.2)) 
+      colnames(tmp) <- c("Year", "Nephrops Trawl", "Other", "Creel", "BMS", "Sub Total", "Other Countries", "Total")
     }
        
   write.table(tmp, paste(wk.dir, "Landings.csv", sep = ""), row.names=FALSE, sep =",")
@@ -132,11 +133,20 @@ function(wk.dir, stock, effort.data,
   means <- means[c("year", "means.male.low.c", "means.female.low.c", "means.male.low", "means.female.low", "means.male.high", "means.female.high")]
   names(means) <- c("year", "males", "females", "males.", "females", "males", "females")
   means <- data.frame(means)
-
   tmp.3 <- means
-
-
   write.table(tmp.3, paste(wk.dir, "Mean sizes.csv", sep = ""), row.names=FALSE, sep = ",")
 
+  
+  ################################################################################################################################
+  # 4. Landings (tonnes), effort (days trawling) and LPUE (kg/day trawling) of Scottish  trawlers      #
+  #    This is for the effort table used in the North Sea WG                                       #
+  ################################################################################################################################
+  
+  eff.year.range<- dimnames(effort.data)$year
+  tmp.4<- data.frame(Year=eff.year.range,Landings=NA,Effort=NA,LPUE=NA)
+  tmp.4$Landings<- as.numeric(quantSums(seasonSums(stock@landings[c("OTB_CRU","OTT_CRU","OTHER"),eff.year.range,,,,])))
+  tmp.4$Effort<- round(as.numeric(quantSums(effort.data)))
+  tmp.4$LPUE<- round(1000*tmp.4$Landings/tmp.4$Effort,1)
+  write.table(tmp.4, paste(wk.dir, "Effort_table_WGNSSK.csv", sep = ""), row.names=FALSE, sep = ",")
 }
 
