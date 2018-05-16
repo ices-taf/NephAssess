@@ -1,3 +1,4 @@
+#02/08/2013 added 5th counter burrow densities in the output data frame
 
 tv.workup.angle <-
 function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE, na.rm = TRUE, old = TRUE, subset = FALSE, station.names=FALSE)
@@ -67,26 +68,65 @@ function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE
 	
 	if(func.unit == "NM")
 	{
-		counts<- subset(counts, !(Station == "NM12030" & Counter_ID == "AM"))
-		counts<- subset(counts, !(Station == "NM12036" & Counter_ID == "AM"))
+		counts<- subset(counts, !(Station == "NM13002" & Counter_ID == "GJ"))
+		counts<- subset(counts, !(Station == "NM13003" & Counter_ID == "GJ"))
+		counts<- subset(counts, !(Station == "NM13004" & Counter_ID == "GJ"))
+		counts<- subset(counts, !(Station == "NM13005" & Counter_ID == "GJ"))
+		counts<- subset(counts, !(Station == "NM13014" & Counter_ID == "GM"))
+		counts<- subset(counts, !(Station == "NM13015" & Counter_ID == "GM"))
+		counts<- subset(counts, !(Station == "NM13017" & Counter_ID == "GJ"))
+		counts<- subset(counts, !(Station == "NM13018" & Counter_ID == "GJ"))
+		counts<- subset(counts, !(Station == "NM13020" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "NM13023" & Counter_ID == "GJ"))
+		counts<- subset(counts, !(Station == "NM13031" & Counter_ID == "CM"))
 	}
 	
 	if(func.unit == "SM")
 	{
-		counts<- subset(counts, !(Station == "SM12031" & Counter_ID == "GJ"))
-		counts<- subset(counts, !(Station == "SM12036" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "SM12037" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "SM12038" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "SM12039" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "SM13001" & Counter_ID == "GM"))
+		counts<- subset(counts, !(Station == "SM13002" & Counter_ID == "GM"))
+		counts<- subset(counts, !(Station == "SM13005" & Counter_ID == "GM"))
+		counts<- subset(counts, !(Station == "SM13006" & Counter_ID == "GM"))
+		counts<- subset(counts, !(Station == "SM13012" & Counter_ID == "AW"))
+		counts<- subset(counts, !(Station == "SM13013" & Counter_ID == "CM"))
+		counts<- subset(counts, !(Station == "SM13027" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "SM13028" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "SM13031" & Counter_ID == "GM"))
+		counts<- subset(counts, !(Station == "SM13033" & Counter_ID == "GM"))
+		counts<- subset(counts, !(Station == "SM13035" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "SM13038" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "SM13041" & Counter_ID == "GM"))
+		counts<- subset(counts, !(Station == "SM13043" & Counter_ID == "MI"))
 	}
 	
 	if(func.unit == "CL")
 	{
-		counts<- subset(counts, !(Station == "CL12016" & Counter_ID == "AM"))
-		counts<- subset(counts, !(Station == "CL12019" & Counter_ID == "AM"))
-		counts<- subset(counts, !(Station == "CL12021" & Counter_ID == "AM"))
-		counts<- subset(counts, !(Station == "CL12028" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "CL12030" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "CL13002" & Counter_ID == "CM"))
+		counts<- subset(counts, !(Station == "CL13005" & Counter_ID == "CM"))
+		counts<- subset(counts, !(Station == "CL13007" & Counter_ID == "CM"))
+		counts<- subset(counts, !(Station == "CL13007" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "CL13008" & Counter_ID == "CM"))
+		counts<- subset(counts, !(Station == "CL13008" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "CL13008" & Counter_ID == "HD"))
+		counts<- subset(counts, !(Station == "CL13009" & Counter_ID == "CM"))
+		counts<- subset(counts, !(Station == "CL13009" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "CL13009" & Counter_ID == "HD"))
+		counts<- subset(counts, !(Station == "CL13010" & Counter_ID == "CM"))
+		counts<- subset(counts, !(Station == "CL13010" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "CL13011" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "CL13012" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "CL13017" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "CL13019" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "CL13022" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "CL13024" & Counter_ID == "MI"))
+		counts<- subset(counts, !(Station == "CL13027" & Counter_ID == "CM"))
+		counts<- subset(counts, !(Station == "CL13037" & Counter_ID == "CM"))
+	}
+	
+	if(func.unit == "SJ")
+	{
+		counts<- subset(counts, !(Station == "SJ13006" & Counter_ID == "GM"))
+		counts<- subset(counts, !(Station == "SJ13007" & Counter_ID == "GM"))
 	}
   }
   
@@ -102,10 +142,10 @@ function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE
           # if any columns are all NAs, then extra commas present
           which.ok <- which(sapply(pos.file, function(x) !all(is.na(x))))
           if (!all(which.ok[1] : which.ok[length(which.ok)] == which.ok)) 
-              stop (gettextf("column of NAs in middle of data in: %s", file.list[(i*2)-1]))
+              stop (gettextf("column of NAs in middle of data in: %s", x))
           pos.file <- pos.file[which.ok]
       
-          if (dim(pos.file)[2] > 7) stop (gettextf("more than 7 columns of data in: %s", file.list[i,1]))
+          if (dim(pos.file)[2] > 7) stop (gettextf("more than 7 columns of data in: %s", x))
       
           if (dim(pos.file)[2] != 7L )
           {
@@ -150,7 +190,7 @@ function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE
 		count.file<- reshape(count.file, direction="wide", idvar=c("Min"), timevar="Counter_ID")
 		count.file<- count.file[order(count.file$Min),]
 		
-		add.n.cols<- 5-dim(count.file)[2]
+		add.n.cols<- 6-dim(count.file)[2]
 		if(add.n.cols>=0)
 		{
 			mat<- matrix(NA, nrow=dim(count.file)[1], ncol=add.n.cols)
@@ -158,16 +198,16 @@ function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE
 		} else
 		
 		{
-		count.file<- count.file[,1:5]
+		count.file<- count.file[,1:6]
 		}
-		names(count.file) <- c("Mins", "C1", "C2", "C3", "C4")
+		names(count.file) <- c("Mins", "C1", "C2", "C3", "C4", "C5")
         dat.file<- subset(DAT, Station %in% x)
 		count.file<- subset(count.file, Mins<=floor(max(dat.file$SecondsElapsed,na.rm=na.rm)/60))	
 		count.file
       })
   
   
-  #Replace "xxx" by NAs to make columns C1 and C2 numeric
+  #Replace "xxx" by NAs to make columns C1-C5 numeric
   for(i in seq.nsets)
 	{
 		for(j in 2:5)
@@ -193,14 +233,15 @@ function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE
           lines( time, depth / max(depth, na.rm = TRUE), col = 3)
 		  }, envir = pos.files[[i]])
         evalq({
-          points(Mins * 60 - 9, C1 / max(C1, C2, C3, C4, na.rm = T), type = "h", lwd = 3, col = 4)
-          points(Mins * 60 + -3, C2 / max(C1, C2, C3, C4, na.rm = T), type = "h", lwd = 3, col = 5)
-		  points(Mins * 60 + 3, C3 / max(C1, C2, C3, C4, na.rm = T), type = "h", lwd = 3, col = 6)
-		  points(Mins * 60 + 9, C4 / max(C1, C2, C3, C4, na.rm = T), type = "h", lwd = 3, col = 7)
+          points(Mins * 60 - 9, C1 / max(C1, C2, C3, C4, C5, na.rm = T), type = "h", lwd = 3, col = 4)
+          points(Mins * 60 + -3, C2 / max(C1, C2, C3, C4, C5, na.rm = T), type = "h", lwd = 3, col = 5)
+		  points(Mins * 60 + 3, C3 / max(C1, C2, C3, C4, C5, na.rm = T), type = "h", lwd = 3, col = 6)
+		  points(Mins * 60 + 9, C4 / max(C1, C2, C3, C4, C5, na.rm = T), type = "h", lwd = 3, col = 7)
+		  points(Mins * 60 + 15, C5 / max(C1, C2, C3, C4, C5, na.rm = T), type = "h", lwd = 3, col = "brown")
         }, envir = count.files[[i]])
         legend(0, 1, legend=c("Distance", "Range", "Depth", "Count 1", "Count 2", "Count 3", "Count 4"), 
                col = c(1:7), lwd = 2, cex = 0.6)
-		max.y<- max(count.files[[i]]$C1, count.files[[i]]$C2, count.files[[i]]$C3, count.files[[i]]$C4, na.rm = T)
+		max.y<- max(count.files[[i]][, c("C1","C2","C3","C4","C5")], na.rm = T)
 		new.scale<- pretty(seq(0, max.y))
 		old.scale<- new.scale/max.y
 		if(max.y>0) { axis(2, at=old.scale, lab=new.scale) }
@@ -262,7 +303,7 @@ function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE
     {
       for (j in seq.int(minutes[i]))
       {
-		if (all(is.na(count.files[[i]][j, c("C1", "C2", "C3", "C4")])) == T)
+		if (all(is.na(count.files[[i]][j, c("C1", "C2", "C3", "C4", "C5")])) == T)
 		{
 			area[[i]][j]<- NA
 		} 
@@ -280,6 +321,7 @@ function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE
     counter.2.density <- sapply(lapply(seq_along(pos.files), function(i) count.files[[i]] $ C2 / area[[i]]), mean, na.rm = na.rm)
     counter.3.density <- sapply(lapply(seq_along(pos.files), function(i) count.files[[i]] $ C3 / area[[i]]), mean, na.rm = na.rm)
     counter.4.density <- sapply(lapply(seq_along(pos.files), function(i) count.files[[i]] $ C4 / area[[i]]), mean, na.rm = na.rm)
+	counter.5.density <- sapply(lapply(seq_along(pos.files), function(i) count.files[[i]] $ C5 / area[[i]]), mean, na.rm = na.rm)
     
 	
 	##Calculates an average of the counts per minute 
@@ -289,7 +331,7 @@ function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE
 		
 		for (j in seq.int(minutes[i]))
 		{
-			count.files[[i]][j, "average"]<- round(mean(c(count.files[[i]][j, "C1"], count.files[[i]][j, "C2"], count.files[[i]][j, "C3"], count.files[[i]][j, "C4"]), na.rm = na.rm), 1)
+			count.files[[i]][j, "average"]<- round(rowMeans(count.files[[i]][j,c("C1", "C2", "C3", "C4", "C5")], na.rm=T),1)
 		}
 	}
 
@@ -310,8 +352,8 @@ function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE
 			count.2 = round(counter.2.density, 2),
 			count.3 = round(counter.3.density, 2),
 			count.4 = round(counter.4.density, 2),
-			Station = file.list
-		  )
+			count.5 = round(counter.5.density, 2),
+			Station = file.list)
 	} else
 		{
 			out <-
@@ -324,67 +366,9 @@ function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE
 			count.1 = round(counter.1.density, 2),
 			count.2 = round(counter.2.density, 2),
 			count.3 = round(counter.3.density, 2),
-			count.4 = round(counter.4.density, 2))
+			count.4 = round(counter.4.density, 2),
+			count.5 = round(counter.5.density, 2))
 		}
-  } else
-  {
-    for (i in seq.nsets)
-    {
-      for (j in seq.int(minutes[i]))
-      {
-        temp.mat <- pos.files[[i]][ pos.files [[i]] $ time <=  count.files [[i]] $ Min[j]       * 60  & 
-                                    pos.files [[i]] $ time >= (count.files [[i]] $ Min[j] - 1) * 60, ]
-        distance.covered[[i]] [j] <- temp.mat $ distance[nrow(temp.mat)] - start.dist[i]
-        average.height[[i]] [j] <- mean(temp.mat $ range - height.differential)
-        start.dist[i] <- temp.mat $ distance[nrow(temp.mat)]
-      }
-    }
-
-    view.width <- lapply(average.height, function(x) 2 * x / cos( lower.edge.view  * pi / 180)  * tan( horizontal.angle * pi / 360))
-    area <- lapply(seq.nsets, function(i) view.width[[i]] * distance.covered[[i]])
-
-    lats <- sapply(pos.files, function(x) x $ lat[1])
-    lons <- sapply(pos.files, function(x) x $ lon[1])
-
-    viewed.area <- sapply(area, sum, na.rm = na.rm)
-    run.length <- sapply(distance.covered, sum)
-
-    counter.1 <- sapply(count.files, function(x) sum(x $ C1, na.rm = na.rm))
-    counter.2 <- sapply(count.files, function(x) sum(x $ C2, na.rm = na.rm))
-    counter.3 <- sapply(count.files, function(x) sum(x $ C3, na.rm = na.rm))
-    counter.4 <- sapply(count.files, function(x) sum(x $ C4, na.rm = na.rm))
-    counter.1.density <- ifelse( counter.1 == 0, 0, counter.1 / viewed.area)
-    counter.2.density <- ifelse( counter.2 == 0, 0, counter.2 / viewed.area)
-    counter.3.density <- ifelse( counter.3 == 0, 0, counter.3 / viewed.area)
-    counter.4.density <- ifelse( counter.4 == 0, 0, counter.4 / viewed.area)
-
-
-##Calculates an average of the counts per minute 
-	for (i in seq.nsets)
-	{
-		count.files [[i]]$average<- numeric(minutes[i])
-		
-		for (j in seq.int(minutes[i]))
-		{
-			count.files[[i]][j, "average"]<- round(mean(c(count.files[[i]][j, "C1"], count.files[[i]][j, "C2"], count.files[[i]][j, "C3"], count.files[[i]][j, "C4"]), na.rm = na.rm), 1)
-		}
-	}
-
-	##Sums the average count and divides by the total viewed area for each station
-	average.density <- sapply(count.files, function(x) sum(x$average, na.rm = na.rm)) / viewed.area  
-    ## make output list
-    out <- 
-      list(
-        lats = lats,
-        lons = lons,
-        viewed.area = viewed.area,
-        distance.covered = run.length,
-        average.density  = round(average.density, 2),
-        count.1 = round(counter.1.density, 2),
-        count.2 = round(counter.2.density, 2),
-        count.3 = round(counter.3.density, 2),
-        count.4 = round(counter.4.density, 2)
-      )
   }
   
   as.data.frame(out)
