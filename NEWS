@@ -1,4 +1,29 @@
 --------------------------------------------------------------------------------
+NephAssess 0.0-0 (2016-04-01)
+--------------------------------------------------------------------------------
+o Nephup.R
+  This new "nephup" function was re-written to replace the previous function created by Neil. The main difference is it now reads the previous year stock object and adds new data (for new years) or replaces data (from previous years) from txt files (same format as before). All it is required is to update the txt files with new (or old), including the year ranges that are supposed to be updated. 
+  An example of code is provided in file:
+  S:\FMP-Group-Inshore\IFG\Nephrops\Assessment\Neph2016\WGNSSK 16\NephUp Files\FF\ new_nephup_example.R
+  Another change in the Nephup.R function is that it is no longer change the heading of Intercatch landings/discards output files (usually names eg NumberPrSexPrQuarterLandingFile.txt). The new function now deals with the current file format.
+
+o sex.ratio.plot.R
+  Calculates and plots the sex ratio (males) in catches by number (“quarter” or “year” option available) for a given stock object.
+  Example:
+  sex.ratio.plot(wdir=Wkdir, stock.obj=nephup.ff, print.output=F, type="quarter")
+
+o nephup.long.term.plots_kw.R
+  This is a variation of “nephup.long.term.plots.R”. The main difference is that it plots effort and LPUE in days and kwdays in a two vertical axis plot, to compare the two effort units. If only one effort unit is available, it still plots days/kwdays in the same way as before.
+  Example:
+  nephort.fl <- list(days=nephort(nephup.dir, eff.file = "eff_FL.days.txt"), kwdays=nephort(nephup.dir, eff.file = "eff_FL.kwdays.txt"))
+  #Effort in days and kwdays
+  nephup.long.term.plots_kw(Wkdir,stock=nephup.fl,effort.data.days=nephort.fl$days, effort.data.kwdays=nephort.fl$kwdays,
+                            international=T,international.landings="international.landings.csv")
+  #Just effort in kwdays
+  nephup.long.term.plots_kw(Wkdir,stock=nephup.fl, effort.data.kwdays=nephort.fl$kwdays,
+                            international=T,international.landings="international.landings.csv")
+
+--------------------------------------------------------------------------------
 NephAssess 0.0-0 (2015-09-01)
 --------------------------------------------------------------------------------
 o tv.workup.fu.R

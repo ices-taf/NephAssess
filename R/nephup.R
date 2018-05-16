@@ -1,480 +1,162 @@
-nephup <-
-function(wdir, lfile, discfile, msfile,lclass, fill.in.yr1, fill.in.yr2, lwparams)
-{
+###############################################################
+# Read Nephrops fisheries into a FLR stock object
+# Created by: Carlos Mesquita
+# Date: 30/11/2015
+# Created: 31/04/2016
+# Packges used: 
+# R (3.1.2)
+##This new "nephup" function replaces previous function created by
+#Neil. This function reads the stock object from the previous year
+#and adds new data from txt files (same format as before)
+###############################################################
 
+nephup <-
+function(wdir, stock.object, lfile, discfile, msfile)
+{
   ###################
-  ##  USER INPUTS  ##
+  ##  Load data    ##
   ###################
   
-  ## FILE LOCATIONS
-  
-  #"Enter working directory, e.g. 'C:/Work/NEPH-UP/CL/'"
-  working.directory<-wdir
-  #working.directory<-"C:/Work/NEPH-UP/CL/"
-  
-  #"Enter quarterly effort/landings data file, e.g. 'Frscl.txt'"
-  landings.file<-lfile
-  #landings.file<-"Frscl04b.txt"
-  
-  #"Enter discard sampling index file name, e.g. 'LISTCL.txt'"
-  discards.file<-discfile
-  #discards.file<-"LISTCL.txt"
-  
-  #"Enter market sampling index file name, e.g. 'Msclind.txt'"
-  ms.index<-msfile
-  #ms.index<-"Msclind.txt"
-  
-  #"Enter length class width (mm) for use on market sample data"
-  
-  ## LENGTH-WEIGHT PARAMETERS
-  
-  ## (this can be changed to give a "terminal" style interface to the function)
-  
-  #fill.in.yr1 <- 1990
-  
-  #fill.in.yr2 <- 1993
+  #Load previous years stock object
+  env <- new.env()
+  load(paste0(wdir,stock.object), envir=env, verbose = T)
+  obj.name<- ls(env=env)[grep("nephup.", ls(env=env))]
+  stock.obj<- env[[obj.name]]
   
   
   ################
   ##  LANDINGS  ##
   ################
   
-  paste(strsplit(readLines(paste(working.directory, landings.file, sep=""))[1], "\t")[[1]], sep=" ")->area.name
-  stock<-paste(area.name[1])
-  area.name<-area.name[area.name!=""]
+  gear.names<- dimnames(stock.obj@landings)$landings
+  season<- dimnames(stock.obj@landings)$season
+  dimnames(stock.obj@landings)$season
+  quarterly.landings.data<-read.table(paste(wdir, lfile, sep=""), skip=3, header=F)
+  colnames(quarterly.landings.data)<-c("Year", "Quarter", gear.names)
+  quarterly.landings.data$Quarter<- gsub("[[:alpha:]]", "", quarterly.landings.data$Quarter)
+  landings.start.year <- as.numeric(strsplit(readLines(paste(wdir, lfile, sep=""))[2], split="\t")[[1]][1])
+  landings.end.year   <- as.numeric(strsplit(readLines(paste(wdir, lfile, sep=""))[2], split="\t")[[1]][2])
   
+  #Expand existing object to the new landings year 
+  stock.obj<- suppressWarnings(expand(stock.obj, year=as.numeric(stock.obj@range[names(stock.obj@range) == "minyear"]):landings.end.year))
   
-  for(i in (2:length(area.name))){
-  stock<-paste(stock, area.name[i], sep="_")
+  for(y in as.character(seq(landings.start.year,landings.end.year)))
+  {
+    for(g in gear.names)
+    {
+      for(s in season)
+      {
+        stock.obj@landings[g,y,,s,,]<- quarterly.landings.data[quarterly.landings.data$Year %in% y & quarterly.landings.data$Quarter %in% s,g]
+      }
+    }
   }
-  
-  ## creates a text string of the area name
-  
-  
-  quarterly.landings.data<-read.table(paste(working.directory, landings.file, sep=""), skip=3, header=F)
-  colnames(quarterly.landings.data)<-c("Year", "Quarter", "OTB_CRU", "OTT_CRU", "OTHER", "FPO")
-  
-  landings.start.year <- as.numeric(strsplit(readLines(paste(working.directory, landings.file, sep=""))[2], split="\t")[[1]][1])
-  landings.end.year   <- as.numeric(strsplit(readLines(paste(working.directory, landings.file, sep=""))[2], split="\t")[[1]][2])
-  
-  neph.landings <- FLQuant(dimnames=list(landings=c("OTB_CRU", "OTT_CRU", "OTHER", "FPO"), year = landings.start.year:landings.end.year  ,
-  season = 1:4, area =stock))
-  
-  # Reads specified file in, skipping first 3 lines, and names columns
-  
-  start.rows <- round(seq(1,dim(quarterly.landings.data)[1], by=4), digits=1)
-  
-  for(i in (1:length(start.rows))){
-  
-      neph.landings[,,,1,]["OTB_CRU",i] <- quarterly.landings.data[start.rows[i],"OTB_CRU"]
-      neph.landings[,,,2,]["OTB_CRU",i] <- quarterly.landings.data[start.rows[i]+1,"OTB_CRU"]    
-      neph.landings[,,,3,]["OTB_CRU",i] <- quarterly.landings.data[start.rows[i]+2,"OTB_CRU"]
-      neph.landings[,,,4,]["OTB_CRU",i] <- quarterly.landings.data[start.rows[i]+3,"OTB_CRU"]
-	  
-	  neph.landings[,,,1,]["OTT_CRU",i] <- quarterly.landings.data[start.rows[i],"OTT_CRU"]
-      neph.landings[,,,2,]["OTT_CRU",i] <- quarterly.landings.data[start.rows[i]+1,"OTT_CRU"]    
-      neph.landings[,,,3,]["OTT_CRU",i] <- quarterly.landings.data[start.rows[i]+2,"OTT_CRU"]
-      neph.landings[,,,4,]["OTT_CRU",i] <- quarterly.landings.data[start.rows[i]+3,"OTT_CRU"]
-	  
-	  neph.landings[,,,1,]["OTHER",i] <- quarterly.landings.data[start.rows[i],"OTHER"]
-      neph.landings[,,,2,]["OTHER",i] <- quarterly.landings.data[start.rows[i]+1,"OTHER"]    
-      neph.landings[,,,3,]["OTHER",i] <- quarterly.landings.data[start.rows[i]+2,"OTHER"]
-      neph.landings[,,,4,]["OTHER",i] <- quarterly.landings.data[start.rows[i]+3,"OTHER"]
-  
-      neph.landings[,,,1,]["FPO",i] <- quarterly.landings.data[start.rows[i],"FPO"]
-      neph.landings[,,,2,]["FPO",i] <- quarterly.landings.data[start.rows[i]+1,"FPO"]    
-      neph.landings[,,,3,]["FPO",i] <- quarterly.landings.data[start.rows[i]+2,"FPO"]
-      neph.landings[,,,4,]["FPO",i] <- quarterly.landings.data[start.rows[i]+3,"FPO"]
-  
-  }
-  
-  neph.landings@units<-"Tonnes"
-  
-  annual.landings<- neph.landings[,,,1,]+neph.landings[,,,2,]+neph.landings[,,,3,]+neph.landings[,,,4,]
   
   
   ################
   ##  DISCARDS  ##
   ################
   
-  discard.files <- readLines(paste(working.directory, discards.file, sep=""))
-  
+  discard.files <- readLines(paste(wdir, discfile, sep=""))
   # reads discard index file
-  
   discard.start.year <- as.numeric(strsplit(discard.files[1], " ")[[1]][1])
   discard.end.year   <- as.numeric(strsplit(discard.files[1], " ")[[1]][length(strsplit(discard.files[1], " ")[[1]])])
-  
   # strips start and end year out of discard file
-  
   discard.files<-discard.files[2:length(discard.files)]
-  
   # chops off years from file list
   
-  quarter.vector<-c("Q1", "Q2", "Q3", "Q4")
-  sex.vector<-c("Males", "Females")
-  year.vector<-c(discard.start.year:discard.end.year)
+  dat<- data.frame(year=as.character(discard.start.year:discard.end.year), discard.files, stringsAsFactors=F)
+  season<- dimnames(stock.obj@discards.n)$season
+  len.class<- dimnames(stock.obj@discards.n)$lengths
+  sex.vector<- dimnames(stock.obj@landings.n)$unit
   
-  # sets up names for use later
-  
-  discard.list<-vector("list", length=length(discard.files))
-  
-  # sets up list to store discard matrices
-  
-  neph.discard.n   <- FLQuant(dimnames=list(lengths=seq(9,71, by=2), year = landings.start.year:landings.end.year,
-                      unit = c("Male", "Female"), season = 1:4, area =stock))
-  
-  neph.discard.n@units   <-"Thousands"
-  
-  ##sets up quants for landings, discards and catch from Discard sampling files
-  
-  
-  #for 1990 to 2008 - old discard files format
-  for (i in (((discard.start.year-landings.start.year+1):(2008-landings.start.year+1)))){
-  for (j in (0:3)){
-  for (k in (1:2)){
-          
-             temp <- read.csv(paste(working.directory, discard.files[((i-(discard.start.year-landings.start.year))*8)-8+(j*2)+k], sep=""), skip=7, header=F)
-             if (dim(temp)[2]==1){
-             temp <- read.table(paste(working.directory, discard.files[((i-(discard.start.year-landings.start.year))*8)-8+(j*2)+k], sep=""), skip=7, header=F)}
-              
-  # reads appropriate sampling file and ditches unused rows
-              
-            neph.discard.n[,i,k,j+1,1]  <- c(temp[,3],0)
-  
-              }
-          }
-      }
+  for(y in dat$year)
+  {
+    temp <- read.table(paste0(wdir,dat[dat$year==y,"discard.files"]), skip=4, sep="\t", comment.char="", header=T)
+    temp<-cbind(temp[,2], temp[,3], temp[,4], temp[,6], temp[,7], temp[,9], temp[,10], temp[,12], temp[,13])
+    temp2<- matrix(nrow=length(seq(9,71,by=1)), ncol=ncol(temp))
+    temp2[,1]<- seq(9,71,by=1)
+    temp2[temp2[,1] %in% temp[,1],2:9]<- temp[,2:9]
+    temp2[is.na(temp2)]<- 0
+    temp2<- as.data.frame(temp2)
+    temp2$vec<- sort(rep(seq(9,71,by=2),2))[-64]
+    temp2<- aggregate(list(temp2[,2:9]), list(temp2[,c("vec")]), sum)
+    grid<- expand.grid(sex.vector,season)
+    colnames(temp2)<- c("L", paste(grid$Var1, grid$Var2, sep="_"))
     
-  
-  #from  2009-2010 , discard files have same format as market sampling files (2mm aggregated without the blank column in "A")
-  for (i in (((2009-landings.start.year+1):(2010-landings.start.year+1)))){
-            
-             temp <- read.csv(paste(working.directory, discard.files[(2009-discard.start.year)*8 + i-(2009-landings.start.year + 1) + 1], sep=""), skip=6, comment.char="", header=T, nrows=31)
-             temp<-cbind(temp[,3], temp[,4]+temp[,5], temp[,7], temp[,8]+temp[,9], temp[,11], temp[,12]+temp[,13], temp[,15], temp[,16]+temp[,17])
-
-	  # reads appropriate sampling file and ditches unused rows
-	  #If file numbers in hundreds should be dividing by 10
-              
-            neph.discard.n[,i,1,1,1]  <- c(temp[,1],0)/10
-            neph.discard.n[,i,2,1,1]  <- c(temp[,2],0)/10
-
-			neph.discard.n[,i,1,2,1]  <- c(temp[,3],0)/10
-            neph.discard.n[,i,2,2,1]  <- c(temp[,4],0)/10
-			
-			neph.discard.n[,i,1,3,1]  <- c(temp[,5],0)/10
-            neph.discard.n[,i,2,3,1]  <- c(temp[,6],0)/10
-			
-			neph.discard.n[,i,1,4,1]  <- c(temp[,7],0)/10
-            neph.discard.n[,i,2,4,1]  <- c(temp[,8],0)/10
-			
-            }
-    
-	
-	#from  2011 , intercatch discard files are being used and again a different format (CM 18/4/2012)
-  for (i in (((2011-landings.start.year+1):(landings.end.year-landings.start.year+1)))){
-            
-             temp <- read.table(paste(working.directory, discard.files[(2009-discard.start.year)*8 + i-(2009-landings.start.year + 1) + 1], sep=""), skip=1, sep="\t", comment.char="", header=T)
-             temp<-cbind(temp[,2], temp[,3], temp[,4], temp[,6], temp[,7], temp[,9], temp[,10], temp[,12], temp[,13])
-
-			 temp2<- matrix(nrow=length(seq(9,71,by=1)), ncol=ncol(temp))
-			 temp2[,1]<- seq(9,71,by=1)
-			 temp2[temp2[,1] %in% temp[,1],2:9]<- temp[,2:9]
-			 temp2[is.na(temp2)]<- 0
-			 temp2<- as.data.frame(temp2)
-			 temp2$vec<- sort(rep(seq(9,71,by=2),2))[-64]
-			 temp2<- aggregate(list(temp2[,2:9]), list(temp2[,c("vec")]), sum)
-			 
-			 
-            for(j in 1:dim(temp2)[1])
-			{
-				neph.discard.n[as.character(temp2[j,1]),i,1,1,1]  <- temp2[j,2]/1000
-				neph.discard.n[as.character(temp2[j,1]),i,2,1,1]  <- temp2[j,3]/1000
-
-				neph.discard.n[as.character(temp2[j,1]),i,1,2,1]  <- temp2[j,4]/1000
-				neph.discard.n[as.character(temp2[j,1]),i,2,2,1]  <- temp2[j,5]/1000
-				
-				neph.discard.n[as.character(temp2[j,1]),i,1,3,1]  <- temp2[j,6]/1000
-				neph.discard.n[as.character(temp2[j,1]),i,2,3,1]  <- temp2[j,7]/1000
-				
-				neph.discard.n[as.character(temp2[j,1]),i,1,4,1]  <- temp2[j,8]/1000
-				neph.discard.n[as.character(temp2[j,1]),i,2,4,1]  <- temp2[j,9]/1000
-			}
-			
+    for(l in len.class)
+    {
+      for(s in season)
+      {
+        for(x in sex.vector)
+        {
+          stock.obj@discards.n[l,y,x,s,,]<- round(temp2[temp2$L==l,paste(x,s,sep="_")]/1000,3)
         }
+      }
+    }
+  }
   
-  
-  
-  ########################
-  ##  Discard Fill-Ins  ##
-  ########################
-  
-    q1.male.disc.mean      <- apply(neph.discard.n[,((fill.in.yr1-landings.start.year)+1):
-                               ((fill.in.yr2-landings.start.year)+1),1,1,1],1, mean)
-  q1.female.disc.mean      <- apply(neph.discard.n[,((fill.in.yr1-landings.start.year)+1):
-                              ((fill.in.yr2-landings.start.year)+1),2,1,1],1, mean)
-    q2.male.disc.mean      <- apply(neph.discard.n[,((fill.in.yr1-landings.start.year)+1):
-                                ((fill.in.yr2-landings.start.year)+1),1,2,1],1, mean)
-  q2.female.disc.mean      <- apply(neph.discard.n[,((fill.in.yr1-landings.start.year)+1):
-                              ((fill.in.yr2-landings.start.year)+1),2,2,1],1, mean)
-    q3.male.disc.mean      <- apply(neph.discard.n[,((fill.in.yr1-landings.start.year)+1):
-                                ((fill.in.yr2-landings.start.year)+1),1,3,1],1, mean)
-  q3.female.disc.mean      <- apply(neph.discard.n[,((fill.in.yr1-landings.start.year)+1):
-                              ((fill.in.yr2-landings.start.year)+1),2,3,1],1, mean)
-    q4.male.disc.mean      <- apply(neph.discard.n[,((fill.in.yr1-landings.start.year)+1):
-                                ((fill.in.yr2-landings.start.year)+1),1,4,1],1, mean)
-  q4.female.disc.mean      <- apply(neph.discard.n[,((fill.in.yr1-landings.start.year)+1):
-                              ((fill.in.yr2-landings.start.year)+1),2,4,1],1, mean)
-  
-  
-  
-  q1.fill.landings         <- mean(quantSums(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),(fill.in.yr1-landings.start.year+1):
-                              (fill.in.yr2-landings.start.year+1),1,1,1]))
-  q2.fill.landings         <- mean(quantSums(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),(fill.in.yr1-landings.start.year+1):
-                              (fill.in.yr2-landings.start.year+1),1,2,1]))
-  q3.fill.landings         <- mean(quantSums(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),(fill.in.yr1-landings.start.year+1):
-                              (fill.in.yr2-landings.start.year+1),1,3,1]))
-  q4.fill.landings         <- mean(quantSums(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),(fill.in.yr1-landings.start.year+1):
-                              (fill.in.yr2-landings.start.year+1),1,4,1]))
-  
-          
-  for (i in (1:(fill.in.yr1-landings.start.year))){
-  #
-  # Cut out these - will take landings from MS data and calculate catch as the sum of the two
-  # 
-   
-   neph.discard.n[,i,1,1,1] <- round((q1.male.disc.mean/q1.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,1,1])), digits=1)
-   neph.discard.n[,i,1,2,1] <- round((q2.male.disc.mean/q2.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,2,1])), digits=1)
-   neph.discard.n[,i,1,3,1] <- round((q3.male.disc.mean/q3.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,3,1])), digits=1)
-   neph.discard.n[,i,1,4,1] <- round((q4.male.disc.mean/q4.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,4,1])), digits=1)
-   
-   neph.discard.n[,i,2,1,1] <- round((q1.female.disc.mean/q1.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,1,1])), digits=1)
-   neph.discard.n[,i,2,2,1] <- round((q2.female.disc.mean/q2.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,2,1])), digits=1)
-   neph.discard.n[,i,2,3,1] <- round((q3.female.disc.mean/q3.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,3,1])), digits=1)
-   neph.discard.n[,i,2,4,1] <- round((q4.female.disc.mean/q4.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,4,1])), digits=1)
     
-   }
-   
-   
-  
   #######################
   ##  MARKET SAMPLING  ##
   #######################
   
-  sampling.files<-readLines(paste(working.directory, ms.index, sep=""))
-  
   ## reads in the market sampling index file
-  
-  
-  if(is.na(as.numeric(strsplit(sampling.files[2], split=",")[[1]][1]))==TRUE){
-  market.sampling.start.year <- as.numeric(strsplit(sampling.files[2], split=" ")[[1]][1])
-  market.sampling.end.year   <- as.numeric(strsplit(sampling.files[2], split=" ")[[1]][2])
-    }
-  if(is.na(as.numeric(strsplit(sampling.files[2], split=",")[[1]][1]))==FALSE){
+  sampling.files<- readLines(paste(wdir, msfile, sep=""))
   market.sampling.start.year <- as.numeric(strsplit(sampling.files[2], split=",")[[1]][1])
-  market.sampling.end.year   <- as.numeric(strsplit(sampling.files[2], split=",")[[1]][2])
-    }
+  market.sampling.end.year <- as.numeric(strsplit(sampling.files[2], split=",")[[1]][2])
+  sampling.files<-sampling.files[3:length(sampling.files)]
   
-  number.of.files <-  market.sampling.end.year-market.sampling.start.year+1
+  dat<- data.frame(year=as.character(market.sampling.start.year:market.sampling.end.year), sampling.files, stringsAsFactors=F)
+  season<- dimnames(stock.obj@landings.n)$season
+  len.class<- dimnames(stock.obj@landings.n)$lengths
+  sex.vector<- dimnames(stock.obj@landings.n)$unit
   
-  ## extracts the dates of first and last files and works out the number of files to expect
-  
-  ms.list<-vector("list", length=number.of.files)
-  ms.weights<-vector("list", length=number.of.files)
-  total.male.weight<-vector(length=number.of.files)
-  total.female.weight<-vector(length=number.of.files)
-  
-  ## sets up lists and vectors for weights
-  
-  male.a   <- as.numeric(strsplit(sampling.files[3], split=",")[[1]][1])
-  male.b   <- as.numeric(strsplit(sampling.files[3], split=",")[[1]][2])
-  female.a <- as.numeric(strsplit(sampling.files[4], split=",")[[1]][1])
-  female.b <- as.numeric(strsplit(sampling.files[4], split=",")[[1]][2])
-  
-  
-  neph.discard.wt <- FLQuant(dimnames=list(lengths=seq(9,71, by=2), year = landings.start.year:landings.end.year,
-                    unit = c("Male", "Female"), season = 1:4, area =stock))
-  
-  lcats <- round(seq(9,71, by=2), digits=0)
-  lens  <- c(9:71)
-  
-  for (q in (1:4)){
-      for (y in (1:(landings.end.year-landings.start.year+1))){
-          for (l in (1:32)){
-                  neph.discard.wt[l,y,1,q,1] <- round((male.a*((lcats[l]+1)^male.b))/1000, digits=3)
-                  neph.discard.wt[l,y,2,q,1] <- round((female.a*((lcats[l]+1)^female.b))/1000, digits=3)
-                  }
-          }
+  for(y in dat$year)
+  {
+    temp <- read.table(paste0(wdir,dat[dat$year==y,"sampling.files"]), skip=4, sep="\t", comment.char="", header=T)
+    temp<-cbind(temp[,2], temp[,3], temp[,4], temp[,6], temp[,7], temp[,9], temp[,10], temp[,12], temp[,13])
+    temp2<- matrix(nrow=length(seq(9,71,by=1)), ncol=ncol(temp))
+    temp2[,1]<- seq(9,71,by=1)
+    temp2[temp2[,1] %in% temp[,1],2:9]<- temp[,2:9]
+    temp2[is.na(temp2)]<- 0
+    temp2<- as.data.frame(temp2)
+    temp2$vec<- sort(rep(seq(9,71,by=2),2))[-64]
+    temp2<- aggregate(list(temp2[,2:9]), list(temp2[,c("vec")]), sum)
+    grid<- expand.grid(sex.vector,season)
+    colnames(temp2)<- c("L", paste(grid$Var1, grid$Var2, sep="_"))
+    
+    for(l in len.class)
+    {
+      for(s in season)
+      {
+        for(x in sex.vector)
+        {
+          stock.obj@landings.n[l,y,x,s,,]<- round(temp2[temp2$L==l,paste(x,s,sep="_")]/1000,3)
+        }
       }
-      
-  
-  ## inputs the length/weight relationships
-  
-  
-  neph.landings.n.temp  <- FLQuant(dimnames=list(lengths=round(seq(9,71, by=1), digits=0), 
-                      year = landings.start.year:landings.end.year,
-                      unit = c("Male", "Female"), season = 1:4, area =stock))
-  
-  neph.landings.n  <- FLQuant(dimnames=list(lengths=round(seq(9,71, by=2), digits=0), 
-                      year = landings.start.year:landings.end.year,
-                      unit = c("Male", "Female"), season = 1:4, area =stock))
-  
-  
-  neph.landings.n@units<-"Thousands"
-  
-  
-  ## in old format files, range of sizes goes from 15-71	(up to 2008)
-  old.format.files<- seq(1, 2008-market.sampling.start.year+1, by=1)
-  
-  ## in new format files, range of sizes goes from 9-71	(2009-2010)
-  new.format.files<- seq(2009-market.sampling.start.year+1, 2010-market.sampling.start.year+1, by=1)
-  
-  ## in intercatch format files, range of sizes varies		(from 2011)
-  intercatch.format.files<- seq(2011-market.sampling.start.year+1, market.sampling.end.year-market.sampling.start.year+1, by=1)
-  
-  
-  
-  ##loop to read market sampling files up to 2008
-  for(i in (old.format.files)){
-  
-  temp      <- read.csv(paste(working.directory, sampling.files[4+i], sep=""), skip=6, comment.char="", header=T, nrows=57)
-  min.length<- 15
-  max.length<- 71
-  
-  sampling.year <- (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][1])*1000)+
-  (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][2])*100)+
-  (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][3])*10)+
-  (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][4]))
-  
-  ## reads in each file - this relies on the format used by Ian, without the blank column in "A"
-  
-  sampled.landings<-cbind(temp[,3], temp[,4]+temp[,5], temp[,7], temp[,8]+temp[,9], temp[,11], temp[,12]+temp[,13], temp[,15], temp[,16]+temp[,17])
-  
-  sampled.landings<-rbind(c(0,0,0,0,0,0,0,0),c(0,0,0,0,0,0,0,0),c(0,0,0,0,0,0,0,0),
-  c(0,0,0,0,0,0,0,0),c(0,0,0,0,0,0,0,0),c(0,0,0,0,0,0,0,0), sampled.landings)
-  
-  ## sets landings to zero for 9-14 mm prawns - this is possibly not appropriate now that FMD gives landings at
-  ## these lengths, check with Nick.
-  
-  ## assigns row and column headings to the sampling matrix
-    
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),1,1,] <- sampled.landings[,1]/10
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),2,1,] <- sampled.landings[,2]/10
-  
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),1,2,] <- sampled.landings[,3]/10
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),2,2,] <- sampled.landings[,4]/10
-  
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),1,3,] <- sampled.landings[,5]/10
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),2,3,] <- sampled.landings[,6]/10
-  
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),1,4,] <- sampled.landings[,7]/10
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),2,4,] <- sampled.landings[,8]/10
-  
+    }
   }
   
   
-  ##loop to read market sampling files between 2009-2010
-  for(i in (new.format.files)){
-  
-  temp      <- read.csv(paste(working.directory, sampling.files[4+i], sep=""), skip=6, comment.char="", header=T, nrows=63)
-  min.length<- 9
-  max.length<- 71
-  
-  sampling.year <- (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][1])*1000)+
-  (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][2])*100)+
-  (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][3])*10)+
-  (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][4]))
-  
-  ## reads in each file - this relies on the format used by Ian, without the blank column in "A"
-  
-  sampled.landings<-cbind(temp[,3], temp[,4]+temp[,5], temp[,7], temp[,8]+temp[,9], temp[,11], temp[,12]+temp[,13], temp[,15], temp[,16]+temp[,17])
-  
-  ## assigns row and column headings to the sampling matrix
-  
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),1,1,] <- sampled.landings[,1]/10
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),2,1,] <- sampled.landings[,2]/10
-  
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),1,2,] <- sampled.landings[,3]/10
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),2,2,] <- sampled.landings[,4]/10
-  
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),1,3,] <- sampled.landings[,5]/10
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),2,3,] <- sampled.landings[,6]/10
-  
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),1,4,] <- sampled.landings[,7]/10
-  neph.landings.n.temp[,(sampling.year-landings.start.year+1),2,4,] <- sampled.landings[,8]/10
-  
+  #############################
+  ##  Complete stock object  ##
+  #############################
+   
+  #For the new year(s), sum landings and discards to obtain catch.n & get mean wts at length from previous year
+  for(y in as.character(seq(landings.start.year,landings.end.year)))
+  {
+    stock.obj@catch.n[,y,,,,]<- stock.obj@landings.n[,y,,,,] + stock.obj@discards.n[,y,,,,]
+    stock.obj@stock.wt[,y,,,,]<- stock.obj@stock.wt[,as.character(as.numeric(y)-1),,,,]
+    stock.obj@catch.wt[,y,,,,]<- stock.obj@catch.wt[,as.character(as.numeric(y)-1),,,,]
+    stock.obj@landings.wt[,y,,,,]<- stock.obj@landings.wt[,as.character(as.numeric(y)-1),,,,]
+    stock.obj@discards.wt[,y,,,,]<- stock.obj@discards.wt[,as.character(as.numeric(y)-1),,,,]
+    stock.obj@stock[,y,,,,]<- stock.obj@stock[,as.character(as.numeric(y)-1),,,,]
   }
   
+  #Catch and discards biomass (numbers*length)
+  stock.obj@catch <- computeCatch(stock.obj)
+  stock.obj@discards <- computeDiscards(stock.obj)
   
-  ##loop to read market sampling files from 2011 - intercatch format (CM 18/4/2012)
-  for(i in (intercatch.format.files)){
-  
-  temp      <- read.table(paste(working.directory, sampling.files[4+i], sep=""), skip=1, sep="\t", comment.char="", header=T)
-    
-  sampling.year <-  seq(market.sampling.start.year, market.sampling.end.year, by=1)[i]
-     
-  sampled.landings<-cbind(temp[,2], temp[,3], temp[,4], temp[,6], temp[,7], temp[,9], temp[,10], temp[,12], temp[,13])
-    
-  ## assigns row and column headings to the sampling matrix
-  
-  for(j in 1:dim(sampled.landings)[1])
-   {
-  	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),1,1,] <- round(sampled.landings[j,2]/1000, 3)
-	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),2,1,] <- round(sampled.landings[j,3]/1000, 3)
-	  
-	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),1,2,] <- round(sampled.landings[j,4]/1000, 3)
-	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),2,2,] <- round(sampled.landings[j,5]/1000, 3)
-	  
-	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),1,3,] <- round(sampled.landings[j,6]/1000, 3)
-	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),2,3,] <- round(sampled.landings[j,7]/1000, 3)
-	  
-	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),1,4,] <- round(sampled.landings[j,8]/1000, 3)
-	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),2,4,] <- round(sampled.landings[j,9]/1000, 3)
-	}
-  
-  }
-  
-  neph.landings.n.temp[is.na(neph.landings.n.temp)]<- 0
-  
-  
-  odd.rows <-round(seq(1,62,by=2), digits=0)
-  even.rows<-round(seq(2,62,by=2),digits=0)
-  
-  for(i in (1:31)){
-  
-  neph.landings.n[i,,,,] <- neph.landings.n.temp[odd.rows[i]] + neph.landings.n.temp[even.rows[i]]
-  
-  }
-  
-  neph.landings.n[32,,,,] <- neph.landings.n.temp[63,,,,]
-  
-  neph.discard.n[is.na(neph.discard.n)] <- 0
-  neph.landings.n[is.na(neph.landings.n)]<- 0
-  
-  neph.catch.n <- FLQuant(dimnames=list(lengths=round(seq(9,71, by=2), digits=0), 
-                      year = landings.start.year:landings.end.year,
-                      unit = c("Male", "Female"), season = 1:4, area =stock))
-  
-  for(i in (1:31)){
-  neph.catch.n[i,,,] <- neph.landings.n[i,,,]+ neph.discard.n[i,,,]
-  }
-  
-  neph.catch.n[32,,,] <- neph.landings.n[32,,,]
-  
-  neph.catch.n[is.na(neph.catch.n)]<- 0
-  
-  return.stock <- FLStock( name=stock, landings.n=neph.landings.n, landings = neph.landings, discards.n = neph.discard.n,
-                  catch.n = neph.catch.n, catch.wt= neph.discard.wt, stock.wt = neph.discard.wt, 
-                  landings.wt=neph.discard.wt, discards.wt=neph.discard.wt)
-  
-  return.stock@stock.wt@units    <- "Kg"
-  return.stock@discards.wt@units <- "Kg"
-  return.stock@stock.wt@units    <- "Kg"
-  return.stock@catch.n@units     <- "Thousands"
-  
-  
-  return.stock@catch <- computeCatch(return.stock)
-  return.stock@discards <- computeDiscards(return.stock)
-  
-  return(return.stock)  
+  #Return new object
+  return(stock.obj)  
 }
-
