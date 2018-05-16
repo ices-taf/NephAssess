@@ -1,0 +1,193 @@
+nephup.jura <-
+function(wdir, msfile)
+{
+
+## FILE LOCATIONS
+  
+  #"Enter working directory, e.g. 'C:/Work/NEPH-UP/CL/'"
+  working.directory<-wdir
+  #working.directory<-"C:/Work/NEPH-UP/CL/"
+  
+  #"Enter market sampling index file name, e.g. 'Msclind.txt'"
+  ms.index<-msfile
+  
+  stock="sj"
+
+  #######################
+  ##  MARKET SAMPLING  ##
+  #######################
+  
+  
+  sampling.files<-readLines(paste(working.directory, ms.index, sep=""))
+  
+  ## reads in the market sampling index file
+  
+  
+  if(is.na(as.numeric(strsplit(sampling.files[2], split=",")[[1]][1]))==TRUE){
+  market.sampling.start.year <- as.numeric(strsplit(sampling.files[2], split=" ")[[1]][1])
+  market.sampling.end.year   <- as.numeric(strsplit(sampling.files[2], split=" ")[[1]][2])
+    }
+  if(is.na(as.numeric(strsplit(sampling.files[2], split=",")[[1]][1]))==FALSE){
+  market.sampling.start.year <- as.numeric(strsplit(sampling.files[2], split=",")[[1]][1])
+  market.sampling.end.year   <- as.numeric(strsplit(sampling.files[2], split=",")[[1]][2])
+    }
+  
+  number.of.files <-  market.sampling.end.year-market.sampling.start.year+1
+  
+  ## extracts the dates of first and last files and works out the number of files to expect
+  
+  ms.list<-vector("list", length=number.of.files)
+  ms.weights<-vector("list", length=number.of.files)
+  total.male.weight<-vector(length=number.of.files)
+  total.female.weight<-vector(length=number.of.files)
+  
+  ## sets up lists and vectors for weights
+  
+  male.a   <- as.numeric(strsplit(sampling.files[3], split=",")[[1]][1])
+  male.b   <- as.numeric(strsplit(sampling.files[3], split=",")[[1]][2])
+  female.a <- as.numeric(strsplit(sampling.files[4], split=",")[[1]][1])
+  female.b <- as.numeric(strsplit(sampling.files[4], split=",")[[1]][2])
+  
+  
+  neph.discard.wt <- FLQuant(dimnames=list(lengths=seq(9,71, by=2), year = market.sampling.start.year:market.sampling.end.year,
+                    unit = c("Male", "Female"), season = 1:4, area =stock))
+  
+  lcats <- round(seq(9,71, by=2), digits=0)
+  lens  <- c(9:71)
+  
+  for (q in (1:4)){
+      for (y in (1:(market.sampling.end.year-market.sampling.start.year+1))){
+          for (l in (1:32)){
+                  neph.discard.wt[l,y,1,q,1] <- round((male.a*((lcats[l]+1)^male.b))/1000, digits=3)
+                  neph.discard.wt[l,y,2,q,1] <- round((female.a*((lcats[l]+1)^female.b))/1000, digits=3)
+                  }
+          }
+      }
+      
+  
+  ## inputs the length/weight relationships
+  
+  
+  neph.landings.n.temp  <- FLQuant(dimnames=list(lengths=round(seq(9,71, by=1), digits=0), 
+                      year = market.sampling.start.year:market.sampling.end.year,
+                      unit = c("Male", "Female"), season = 1:4, area =stock))
+  
+  neph.landings.n  <- FLQuant(dimnames=list(lengths=round(seq(9,71, by=2), digits=0), 
+                      year = market.sampling.start.year:market.sampling.end.year,
+                      unit = c("Male", "Female"), season = 1:4, area =stock))
+  
+  
+  neph.landings.n@units<-"Thousands"
+  
+  
+  ## in old format files, range of sizes goes from 15-71
+  old.format.files<- seq(1, 2008-market.sampling.start.year+1, by=1)
+  
+  ## in new format files, range of sizes goes from 9-71
+  new.format.files<- seq(2009-market.sampling.start.year+1, market.sampling.end.year-market.sampling.start.year+1, by=1)
+  
+  
+  
+  ##loop to read market sampling files up to 2008
+  for(i in (old.format.files)){
+  
+  temp      <- read.csv(paste(working.directory, sampling.files[4+i], sep=""), skip=6, comment.char="", header=T, nrows=57)
+  min.length<- 15
+  max.length<- 71
+  
+  sampling.year <- (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][1])*1000)+
+  (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][2])*100)+
+  (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][3])*10)+
+  (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][4]))
+  
+  ## reads in each file - this relies on the format used by Ian, without the blank column in "A"
+  
+  sampled.landings<-cbind(temp[,3], temp[,4]+temp[,5], temp[,7], temp[,8]+temp[,9], temp[,11], temp[,12]+temp[,13], temp[,15], temp[,16]+temp[,17])
+  
+  sampled.landings<-rbind(c(0,0,0,0,0,0,0,0),c(0,0,0,0,0,0,0,0),c(0,0,0,0,0,0,0,0),
+  c(0,0,0,0,0,0,0,0),c(0,0,0,0,0,0,0,0),c(0,0,0,0,0,0,0,0), sampled.landings)
+  
+  ## sets landings to zero for 9-14 mm prawns - this is possibly not appropriate now that FMD gives landings at
+  ## these lengths, check with Nick.
+  
+  ## assigns row and column headings to the sampling matrix
+    
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),1,1,] <- sampled.landings[,1]/10
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),2,1,] <- sampled.landings[,2]/10
+  
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),1,2,] <- sampled.landings[,3]/10
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),2,2,] <- sampled.landings[,4]/10
+  
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),1,3,] <- sampled.landings[,5]/10
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),2,3,] <- sampled.landings[,6]/10
+  
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),1,4,] <- sampled.landings[,7]/10
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),2,4,] <- sampled.landings[,8]/10
+  
+  }
+  
+  
+  ##loop to read market sampling files from 2009
+  
+  for(i in (new.format.files)){
+  
+  temp      <- read.csv(paste(working.directory, sampling.files[4+i], sep=""), skip=6, comment.char="", header=T, nrows=63)
+  min.length<- 9
+  max.length<- 71
+  
+  sampling.year <- (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][1])*1000)+
+  (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][2])*100)+
+  (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][3])*10)+
+  (as.numeric(strsplit(strsplit(readLines(paste(working.directory, sampling.files[4+i], sep=""))[[2]], split=" ")[[1]][4], split="")[[1]][4]))
+  
+  ## reads in each file - this relies on the format used by Ian, without the blank column in "A"
+  
+  sampled.landings<-cbind(temp[,3], temp[,4]+temp[,5], temp[,7], temp[,8]+temp[,9], temp[,11], temp[,12]+temp[,13], temp[,15], temp[,16]+temp[,17])
+  
+  ## assigns row and column headings to the sampling matrix
+  
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),1,1,] <- sampled.landings[,1]/10
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),2,1,] <- sampled.landings[,2]/10
+  
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),1,2,] <- sampled.landings[,3]/10
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),2,2,] <- sampled.landings[,4]/10
+  
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),1,3,] <- sampled.landings[,5]/10
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),2,3,] <- sampled.landings[,6]/10
+  
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),1,4,] <- sampled.landings[,7]/10
+  neph.landings.n.temp[,(sampling.year-market.sampling.start.year+1),2,4,] <- sampled.landings[,8]/10
+  
+  }
+  
+    
+  
+  odd.rows <-round(seq(1,62,by=2), digits=0)
+  even.rows<-round(seq(2,62,by=2),digits=0)
+  
+  for(i in (1:31)){
+  
+  neph.landings.n[i,,,,] <- neph.landings.n.temp[odd.rows[i]] + neph.landings.n.temp[even.rows[i]]
+  
+  }
+  
+  neph.landings.n[32,,,,] <- neph.landings.n.temp[63,,,,]
+  
+  neph.landings.n[is.na(neph.landings.n)]<- 0
+
+  
+  return.stock <- FLStock( name=stock, landings.n=neph.landings.n, catch.wt= neph.discard.wt, stock.wt = neph.discard.wt, 
+                  landings.wt=neph.discard.wt, discards.wt=neph.discard.wt)
+  
+  return.stock@stock.wt@units    <- "Kg"
+  return.stock@discards.wt@units <- "Kg"
+  return.stock@stock.wt@units    <- "Kg"
+  return.stock@catch.n@units     <- "Thousands"
+  
+  
+  return.stock@catch <- computeCatch(return.stock)
+  return.stock@discards <- computeDiscards(return.stock)
+  
+  return(return.stock)  
+}
+

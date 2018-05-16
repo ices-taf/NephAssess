@@ -1,0 +1,11 @@
+Package: NephAssess
+Type: Package
+Title: WGCSE Nephrops assessment
+Version: 0.1-1
+Date: 2009-10-22
+Depends: R (>= 1.8.0), sp, FLCore
+Author: Sarah Clarke
+Maintainer: Sarah Clarke <clarkes@marlab.ac.uk>
+Description: A collection of functions for the WGCSE Nephrops assessment
+License: GPL
+LazyLoad: yes

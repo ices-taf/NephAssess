@@ -1,0 +1,19 @@
+--------------------------------------------------------------------------------
+NephAssess 0.0-0 (2013-05-01)
+--------------------------------------------------------------------------------
+o Change of the tv.workup script.
+  The new tv workup script is now called tv.workup.angle.R. The method to calculate average densities is still the same and the main difference is that the camera angle of mounting is used as a direct input. This was decided because all the uncertainties that arise each year due to several different measurements being taken (sometimes using different reference points leading to different results) to calculate something that can be directly measured in a simpler way. The camera angle will be in the future measured with a protractor with lasers. This does not mean we cannot take other measurements to double check the angle we get. But it is simpler to come up with a value that should be fixed during the survey and used as a direct input for the workup code. Therefore, the backheight and camera length are not used anymore. This means that the 3rd line of the index file (containing the camera parameters) needs to be changed. See the new and old formats below:
+
+New format:
+
+0612s -------------------> Cruise number
+North Minch -------------> FU
+90,38,92,54,41 ----------> Frontheight, camera mounting angle, rangefinder height, horizontal angle, vertical angle
+44 -----------------------> Number of stations
+
+Old format:
+
+0612s -------------------> Cruise number
+North Minch -------------> FU
+90,106,92,18.5,54,41 ----------> Frontheight, backheight, rangefinder height, camera length, horizontal angle, vertical angle
+44 -----------------------> Number of stations
