@@ -97,7 +97,8 @@ function(wk.dir, stock, f.u,stock.object, international.landings, survey)
                           harvest.ratio.VMS = round(HR.VMS*100, 1))
     }else{
         #Harvest ratio
-        HR <- raising.factor*removals/(1000*survey.data$abundance/bias)    
+        length(removals) <-length(yr.ran)
+		HR <- raising.factor*removals/(1000*survey.data$abundance/bias)    
 
         surv.tmp <-cbind(year=survey.data$year,adjusted.abundance = round(survey.data$abundance/bias, 0),		#millions
                           harvest.ratio = round(HR*100, 1))

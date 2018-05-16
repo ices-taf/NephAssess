@@ -103,8 +103,8 @@ function(wk.dir, strata.object, survey.data,  f.u, vms.area=NULL)
   
   recent.year <- cbind(rev(survey.data $ year)[1] + 1, mean.density, NA, NA, abundance.VMS, NA, NA, confidence.interval.VMS)
   colnames(recent.year) <- c("year", "mean.density", "abundance.sediment", "abundance.VMS.1", "abundance.VMS.2", "confidence.interval.sediment", "confidence.interval.VMS.1", "confidence.interval.VMS.2")
-  final.table <- round(rbind(survey.data, recent.year), 2)
-  final.table.bias.corrected<- cbind( final.table[,c("year", "mean.density")], round(final.table[,c("abundance.sediment", "abundance.VMS.1", "abundance.VMS.2", "confidence.interval.sediment", "confidence.interval.VMS.1", "confidence.interval.VMS.2")] / bias)) 
+  final.table <- round(rbind(survey.data, recent.year), 3)
+  final.table.bias.corrected<- cbind( year=final.table[,c("year")], mean.density=round(final.table[,c("mean.density")]/bias,3), round(final.table[,c("abundance.sediment", "abundance.VMS.1", "abundance.VMS.2", "confidence.interval.sediment", "confidence.interval.VMS.1", "confidence.interval.VMS.2")] / bias)) 
 
   
   # if no fishstats folder create one
@@ -193,7 +193,10 @@ function(wk.dir, strata.object, survey.data,  f.u, vms.area=NULL)
   #Correct for bias
   results.by.stratum.bias.corrected<- results.by.stratum
   results.by.stratum.bias.corrected[,"Abundance (millions)"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Abundance (millions)"])/bias, 1)
- 
+  results.by.stratum.bias.corrected[,"Mean burrow density (no./m2)"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Mean burrow density (no./m2)"])/bias, 3)
+  results.by.stratum.bias.corrected[,"Observed variance"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Observed variance"])/bias^2, 3)
+  results.by.stratum.bias.corrected[,"Stratum variance"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Stratum variance"])/bias^2, 0)
+  results.by.stratum.bias.corrected [ is.na(results.by.stratum.bias.corrected) ] <- ""
 
   # Write table to a csv
   write.table(results.by.stratum, paste(getwd(), "/", "fishstats/", f.u, "_TV results by stratum.csv", sep = ""), sep = ",", row.names=FALSE)

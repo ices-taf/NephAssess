@@ -187,8 +187,8 @@ function(wk.dir, strata.object, survey.data,  f.u)
   results.by.stratum.bias.corrected<- results.by.stratum
   results.by.stratum.bias.corrected[,"Abundance (millions)"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Abundance (millions)"])/bias, 1)
   results.by.stratum.bias.corrected[,"Mean burrow density (no./m2)"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Mean burrow density (no./m2)"])/bias, 3)
-  results.by.stratum.bias.corrected[,"Observed variance"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Observed variance"])/bias, 3)
-  results.by.stratum.bias.corrected[,"Stratum variance"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Stratum variance"])/bias, 0)
+  results.by.stratum.bias.corrected[,"Observed variance"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Observed variance"])/bias^2, 3)
+  results.by.stratum.bias.corrected[,"Stratum variance"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Stratum variance"])/bias^2, 0)
   results.by.stratum.bias.corrected [ is.na(results.by.stratum.bias.corrected) ] <- ""
   
   # Write table to a csv
