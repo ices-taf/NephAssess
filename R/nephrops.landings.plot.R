@@ -28,6 +28,13 @@ points(as.vector(temp[1,c((start.year-data.start.year+1):(end.year-data.start.ye
 lines(as.vector(temp[2,c((start.year-data.start.year+1):(end.year-data.start.year+1)),,,])/1000~c(start.year:end.year), lty=2, lwd=2)
 points(as.vector(temp[2,c((start.year-data.start.year+1):(end.year-data.start.year+1)),,,])/1000~c(start.year:end.year), pch=21, bg="white")
 
+lines(as.vector(temp[3,c((start.year-data.start.year+1):(end.year-data.start.year+1)),,,])/1000~c(start.year:end.year), lty=3, lwd=2)
+points(as.vector(temp[3,c((start.year-data.start.year+1):(end.year-data.start.year+1)),,,])/1000~c(start.year:end.year), pch=24, bg="white")
+
+
+lines(as.vector(temp[4,c((start.year-data.start.year+1):(end.year-data.start.year+1)),,,])/1000~c(start.year:end.year), lty=1, lwd=1)
+points(as.vector(temp[4,c((start.year-data.start.year+1):(end.year-data.start.year+1)),,,])/1000~c(start.year:end.year), pch=22, bg="white")
+
 if(legend.type=="none"){
 break
 }

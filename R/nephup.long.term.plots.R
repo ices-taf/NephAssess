@@ -26,8 +26,7 @@ function(wk.dir, stock, effort.data, international = F, international.landings =
 
   creel <- rowSums(colSums(stock@landings["FPO",,,,,]  ))
 
-
-#  Mean sizes
+  #  Mean sizes
 
   means <- mean.sizes(stock)
   
@@ -98,11 +97,7 @@ function(wk.dir, stock, effort.data, international = F, international.landings =
  
   y.min <-min(means$means.male.low.c,means$means.female.low.c,means$means.male.low,means$means.female.low,na.rm=T)
  
-  plot(year, means$means.male.low.c, type="o", pch=1, xlab="", ylab="", bty="l", lwd=2, ylim=c(y.min-2, max(means$means.male.high, na.rm=T)))
-  points(year, means$means.male.low.c, pch=23, bg="black")
-  lines(year, means$means.female.low.c, type="o", pch=2, lwd=2)
-  points(year, means$means.female.low.c, pch=24, bg="black")
-  lines(year, means$means.male.low, type="o", pch=23, lwd=2)
+  plot(year, means$means.male.low, type="o", pch=23, lwd=2, xlab="", ylab="", bty="l", ylim=c(y.min-2, max(means$means.male.high, na.rm=T)))
   points(year, means$means.male.low, pch=23, bg="white")
   lines(year, means$means.female.low, type="o", pch=24, lwd=2)
   points(year, means$means.female.low, pch=24, bg="white")
@@ -110,6 +105,13 @@ function(wk.dir, stock, effort.data, international = F, international.landings =
   points(year, means$means.male.high, pch=23, bg="grey50")
   lines(year, means$means.female.high, type="o", pch=24, lwd=2)
   points(year, means$means.female.high, pch=24, bg="grey50")
+if(regexpr("Noup", stock@name)[1] == (-1))
+{ 
+  lines(year, means$means.male.low.c, type="o", pch=1, lwd=2)
+  points(year, means$means.male.low.c, pch=23, bg="black")
+  lines(year, means$means.female.low.c, type="o", pch=2, lwd=2)
+  points(year, means$means.female.low.c, pch=24, bg="black")
+} 
   
   title(main="Mean sizes", xlab = "year", ylab="mean size (mm carapace length)")
 

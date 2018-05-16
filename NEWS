@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+NephAssess 0.0-0 (2014-03-14)
+--------------------------------------------------------------------------------
+o NephAssess package modified to work on R 3.x.x.
+o North minch and Devil’s Hole polygon files (extension “rda” in data folder) were converted to a different format that relies on package “rgeos”. Package “gpclib” (which was not made available by developers for R 3) is not required anymore.
+
+
+--------------------------------------------------------------------------------
 NephAssess 0.0-0 (2013-05-01)
 --------------------------------------------------------------------------------
 o Change of the tv.workup script.

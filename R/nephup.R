@@ -227,14 +227,14 @@ function(wdir, lfile, discfile, msfile,lclass, fill.in.yr1, fill.in.yr2, lwparam
   
   
   
-  q1.fill.landings         <- mean(neph.landings[1,(fill.in.yr1-landings.start.year+1):
-                              (fill.in.yr2-landings.start.year+1),1,1,1])
-  q2.fill.landings         <- mean(neph.landings[1,(fill.in.yr1-landings.start.year+1):
-                              (fill.in.yr2-landings.start.year+1),1,2,1])
-  q3.fill.landings         <- mean(neph.landings[1,(fill.in.yr1-landings.start.year+1):
-                              (fill.in.yr2-landings.start.year+1),1,3,1])
-  q4.fill.landings         <- mean(neph.landings[1,(fill.in.yr1-landings.start.year+1):
-                              (fill.in.yr2-landings.start.year+1),1,4,1])
+  q1.fill.landings         <- mean(quantSums(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),(fill.in.yr1-landings.start.year+1):
+                              (fill.in.yr2-landings.start.year+1),1,1,1]))
+  q2.fill.landings         <- mean(quantSums(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),(fill.in.yr1-landings.start.year+1):
+                              (fill.in.yr2-landings.start.year+1),1,2,1]))
+  q3.fill.landings         <- mean(quantSums(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),(fill.in.yr1-landings.start.year+1):
+                              (fill.in.yr2-landings.start.year+1),1,3,1]))
+  q4.fill.landings         <- mean(quantSums(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),(fill.in.yr1-landings.start.year+1):
+                              (fill.in.yr2-landings.start.year+1),1,4,1]))
   
           
   for (i in (1:(fill.in.yr1-landings.start.year))){
@@ -242,15 +242,15 @@ function(wdir, lfile, discfile, msfile,lclass, fill.in.yr1, fill.in.yr2, lwparam
   # Cut out these - will take landings from MS data and calculate catch as the sum of the two
   # 
    
-   neph.discard.n[,i,1,1,1] <- round((q1.male.disc.mean/q1.fill.landings)*as.numeric(neph.landings[1,i,1,1,1]), digits=1)
-   neph.discard.n[,i,1,2,1] <- round((q2.male.disc.mean/q1.fill.landings)*as.numeric(neph.landings[1,i,1,2,1]), digits=1)
-   neph.discard.n[,i,1,3,1] <- round((q3.male.disc.mean/q1.fill.landings)*as.numeric(neph.landings[1,i,1,3,1]), digits=1)
-   neph.discard.n[,i,1,4,1] <- round((q4.male.disc.mean/q1.fill.landings)*as.numeric(neph.landings[1,i,1,4,1]), digits=1)
+   neph.discard.n[,i,1,1,1] <- round((q1.male.disc.mean/q1.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,1,1])), digits=1)
+   neph.discard.n[,i,1,2,1] <- round((q2.male.disc.mean/q2.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,2,1])), digits=1)
+   neph.discard.n[,i,1,3,1] <- round((q3.male.disc.mean/q3.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,3,1])), digits=1)
+   neph.discard.n[,i,1,4,1] <- round((q4.male.disc.mean/q4.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,4,1])), digits=1)
    
-   neph.discard.n[,i,2,1,1] <- round((q1.female.disc.mean/q1.fill.landings)*as.numeric(neph.landings[1,i,1,1,1]), digits=1)
-   neph.discard.n[,i,2,2,1] <- round((q2.female.disc.mean/q1.fill.landings)*as.numeric(neph.landings[1,i,1,2,1]), digits=1)
-   neph.discard.n[,i,2,3,1] <- round((q3.female.disc.mean/q1.fill.landings)*as.numeric(neph.landings[1,i,1,3,1]), digits=1)
-   neph.discard.n[,i,2,4,1] <- round((q4.female.disc.mean/q1.fill.landings)*as.numeric(neph.landings[1,i,1,4,1]), digits=1)
+   neph.discard.n[,i,2,1,1] <- round((q1.female.disc.mean/q1.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,1,1])), digits=1)
+   neph.discard.n[,i,2,2,1] <- round((q2.female.disc.mean/q2.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,2,1])), digits=1)
+   neph.discard.n[,i,2,3,1] <- round((q3.female.disc.mean/q3.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,3,1])), digits=1)
+   neph.discard.n[,i,2,4,1] <- round((q4.female.disc.mean/q4.fill.landings)*as.numeric(sum(neph.landings[c("OTB_CRU", "OTT_CRU", "OTHER"),i,1,4,1])), digits=1)
     
    }
    

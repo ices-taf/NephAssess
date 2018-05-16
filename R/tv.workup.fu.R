@@ -105,7 +105,7 @@ function(wk.dir, strata.object, survey.data,  f.u)
   recent.year <- cbind(rev(survey.data $ year)[1] + 1, abundance, mean.density, confidence.interval)
   colnames(recent.year) <- c("year", "abundance", "mean.density", "confidence.interval")
   final.table <- round(rbind(survey.data, recent.year), 3)
-  final.table.bias.corrected<- cbind( final.table[,c("year", "mean.density")], round(final.table[,c("abundance", "confidence.interval")] / bias)) 
+  final.table.bias.corrected<- cbind( year=final.table$year, abundance=round(final.table$abundance/bias), mean.density=round(final.table$mean.density/bias, 3), confidence.interval=round(final.table$confidence.interval/bias)) 
   
   
   # if no fishstats folder create one
@@ -161,7 +161,7 @@ function(wk.dir, strata.object, survey.data,  f.u)
       sapply(strata.list, "[[", "no.stations"),
       round( sapply(strata.list, "[[", "sample.mean"), 3),
       round( sapply(strata.list, "[[", "sample.variance"), 3),
-      round( sapply(strata.list, "[[", "total.n"), 0),
+      round( sapply(strata.list, "[[", "total.n"), 1),
       round( sapply(strata.list, "[[", "mean.var"), 0),
       round( sapply(strata.list, "[[", "prop"), 3),
       stringsAsFactors = FALSE
@@ -182,8 +182,10 @@ function(wk.dir, strata.object, survey.data,  f.u)
   #Correct for bias
   results.by.stratum.bias.corrected<- results.by.stratum
   results.by.stratum.bias.corrected[,"Abundance (millions)"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Abundance (millions)"])/bias, 1)
-  results.by.stratum.bias.corrected[4, "Abundance (millions)"]<- sum(results.by.stratum.bias.corrected[1:3, "Abundance (millions)"])
-  
+  results.by.stratum.bias.corrected[,"Mean burrow density (no./m2)"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Mean burrow density (no./m2)"])/bias, 3)
+  results.by.stratum.bias.corrected[,"Observed variance"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Observed variance"])/bias, 3)
+  results.by.stratum.bias.corrected[,"Stratum variance"]<- round(as.numeric(results.by.stratum.bias.corrected[,"Stratum variance"])/bias, 0)
+  results.by.stratum.bias.corrected [ is.na(results.by.stratum.bias.corrected) ] <- ""
   
   # Write table to a csv
   write.table(results.by.stratum, paste(getwd(), "/", "fishstats/", f.u, "_TV results by stratum.csv", sep = ""), sep = ",", row.names=FALSE)

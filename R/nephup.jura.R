@@ -1,5 +1,5 @@
 nephup.jura <-
-function(wdir, msfile)
+function(wdir, lfile, msfile)
 {
 
 ## FILE LOCATIONS
@@ -8,11 +8,73 @@ function(wdir, msfile)
   working.directory<-wdir
   #working.directory<-"C:/Work/NEPH-UP/CL/"
   
+  #"Enter quarterly effort/landings data file, e.g. 'Frscl.txt'"
+  landings.file<-lfile
+  
   #"Enter market sampling index file name, e.g. 'Msclind.txt'"
   ms.index<-msfile
   
-  stock="sj"
 
+  ################
+  ##  LANDINGS  ##
+  ################
+  
+  paste(strsplit(readLines(paste(working.directory, landings.file, sep=""))[1], "\t")[[1]], sep=" ")->area.name
+  stock<-paste(area.name[1])
+  area.name<-area.name[area.name!=""]
+  
+  
+  for(i in (2:length(area.name))){
+  stock<-paste(stock, area.name[i], sep="_")
+  }
+  
+  ## creates a text string of the area name
+  
+  
+  quarterly.landings.data<-read.table(paste(working.directory, landings.file, sep=""), skip=3, header=F)
+  colnames(quarterly.landings.data)<-c("Year", "Quarter", "OTB_CRU", "OTT_CRU", "OTHER", "FPO")
+  
+  landings.start.year <- as.numeric(strsplit(readLines(paste(working.directory, landings.file, sep=""))[2], split="\t")[[1]][1])
+  landings.end.year   <- as.numeric(strsplit(readLines(paste(working.directory, landings.file, sep=""))[2], split="\t")[[1]][2])
+  
+  neph.landings <- FLQuant(dimnames=list(landings=c("OTB_CRU", "OTT_CRU", "OTHER", "FPO"), year = landings.start.year:landings.end.year  ,
+  season = 1:4, area =stock))
+  
+  # Reads specified file in, skipping first 3 lines, and names columns
+  
+  start.rows <- round(seq(1,dim(quarterly.landings.data)[1], by=4), digits=1)
+  
+  for(i in (1:length(start.rows))){
+  
+      neph.landings[,,,1,]["OTB_CRU",i] <- quarterly.landings.data[start.rows[i],"OTB_CRU"]
+      neph.landings[,,,2,]["OTB_CRU",i] <- quarterly.landings.data[start.rows[i]+1,"OTB_CRU"]    
+      neph.landings[,,,3,]["OTB_CRU",i] <- quarterly.landings.data[start.rows[i]+2,"OTB_CRU"]
+      neph.landings[,,,4,]["OTB_CRU",i] <- quarterly.landings.data[start.rows[i]+3,"OTB_CRU"]
+	  
+	  neph.landings[,,,1,]["OTT_CRU",i] <- quarterly.landings.data[start.rows[i],"OTT_CRU"]
+      neph.landings[,,,2,]["OTT_CRU",i] <- quarterly.landings.data[start.rows[i]+1,"OTT_CRU"]    
+      neph.landings[,,,3,]["OTT_CRU",i] <- quarterly.landings.data[start.rows[i]+2,"OTT_CRU"]
+      neph.landings[,,,4,]["OTT_CRU",i] <- quarterly.landings.data[start.rows[i]+3,"OTT_CRU"]
+	  
+	  neph.landings[,,,1,]["OTHER",i] <- quarterly.landings.data[start.rows[i],"OTHER"]
+      neph.landings[,,,2,]["OTHER",i] <- quarterly.landings.data[start.rows[i]+1,"OTHER"]    
+      neph.landings[,,,3,]["OTHER",i] <- quarterly.landings.data[start.rows[i]+2,"OTHER"]
+      neph.landings[,,,4,]["OTHER",i] <- quarterly.landings.data[start.rows[i]+3,"OTHER"]
+  
+      neph.landings[,,,1,]["FPO",i] <- quarterly.landings.data[start.rows[i],"FPO"]
+      neph.landings[,,,2,]["FPO",i] <- quarterly.landings.data[start.rows[i]+1,"FPO"]    
+      neph.landings[,,,3,]["FPO",i] <- quarterly.landings.data[start.rows[i]+2,"FPO"]
+      neph.landings[,,,4,]["FPO",i] <- quarterly.landings.data[start.rows[i]+3,"FPO"]
+  
+  }
+  
+  neph.landings@units<-"Tonnes"
+  
+  annual.landings<- neph.landings[,,,1,]+neph.landings[,,,2,]+neph.landings[,,,3,]+neph.landings[,,,4,]
+  
+  
+  
+  
   #######################
   ##  MARKET SAMPLING  ##
   #######################
@@ -176,7 +238,7 @@ function(wdir, msfile)
   neph.landings.n[is.na(neph.landings.n)]<- 0
 
   
-  return.stock <- FLStock( name=stock, landings.n=neph.landings.n, catch.wt= neph.discard.wt, stock.wt = neph.discard.wt, 
+  return.stock <- FLStock( name=stock, landings.n=neph.landings.n, landings = neph.landings, catch.wt= neph.discard.wt, stock.wt = neph.discard.wt, 
                   landings.wt=neph.discard.wt, discards.wt=neph.discard.wt)
   
   return.stock@stock.wt@units    <- "Kg"
