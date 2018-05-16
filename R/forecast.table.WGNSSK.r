@@ -1,7 +1,7 @@
 #~~~~~~~~~~~~~~~forecast.table~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Description: Function to create the forecast summary output
 #                 table including dead & surviving discards
-# Author: HD
+# Author: HD/CM
 # Date:   26/3/2014
 #
 #  Input parameters:
@@ -44,7 +44,7 @@
 #  Function edited from forecast.table.2015 to give 3 forecast tables as requested by WGNSSK 2017
 
 forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.yrs, disc.wt.yrs, disc.rt.yrs, 
-                          h.rates, d.surv =0.25)
+                          h.rates, d.surv =0.25, latest.advice)
 {
 
   setwd(wk.dir)
@@ -101,7 +101,8 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   summary.output1$wanted.catch.tonnes <-round(hrs*surv.abundance*(1-disc.mean.rate)*land.mean.wt)
   summary.output1$unwanted.catch.tonnes <-round(hrs*surv.abundance*disc.mean.rate*disc.mean.wt)
   summary.output1$total.catch.tonnes <-with(summary.output1,wanted.catch.tonnes+unwanted.catch.tonnes)
-  summary.output1<- summary.output1[,c("Basis", "total.catch.tonnes", "wanted.catch.tonnes", "unwanted.catch.tonnes", "harvest.rate")]
+  summary.output1$percentage.advice.change <- paste0(icesRound(100*(summary.output1$total.catch.tonnes-latest.advice)/latest.advice), "%")
+  summary.output1<- summary.output1[,c("Basis", "total.catch.tonnes", "wanted.catch.tonnes", "unwanted.catch.tonnes", "harvest.rate", "percentage.advice.change")]
   
   #Catch options assuming discarding is allowed
   summary.output2<-summary.output
@@ -110,7 +111,8 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   summary.output2$surviving.discards.tonnes <-round(summary.output2$dead.discards.tonnes/((1-d.surv)/d.surv))
   summary.output2$total.catch.tonnes <-with(summary.output2,landings.tonnes+dead.discards.tonnes+surviving.discards.tonnes)
   summary.output2$dead.removals.tonnes <-with(summary.output2,landings.tonnes+dead.discards.tonnes)
-  summary.output2<- summary.output2[,c("Basis", "total.catch.tonnes", "dead.removals.tonnes", "landings.tonnes", "dead.discards.tonnes", "surviving.discards.tonnes","harvest.rate")]
+  summary.output2$percentage.advice.change <- paste0(icesRound(100*(summary.output2$total.catch.tonnes-latest.advice)/latest.advice), "%")
+  summary.output2<- summary.output2[,c("Basis", "total.catch.tonnes", "dead.removals.tonnes", "landings.tonnes", "dead.discards.tonnes", "surviving.discards.tonnes","harvest.rate", "percentage.advice.change")]
   
   #Discarding allowed for de minimis excemptions only
   summary.output3<-summary.output
@@ -124,7 +126,8 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   summary.output3$surviving.discards.tonnes<- round(surviving.discards.N*disc.below.MCS.mean.wt)
   summary.output3$total.catch.tonnes <- with(summary.output3,landings.tonnes+unwanted.above.MCS.tonnes+dead.discards.below.MCS.tonnes+surviving.discards.tonnes)
   summary.output3$dead.removals.tonnes <- with(summary.output3,landings.tonnes+unwanted.above.MCS.tonnes+dead.discards.below.MCS.tonnes)
-  summary.output3<- summary.output3[,c("Basis", "total.catch.tonnes","dead.removals.tonnes","landings.tonnes","unwanted.above.MCS.tonnes","dead.discards.below.MCS.tonnes","surviving.discards.tonnes","harvest.rate")]
+  summary.output3$percentage.advice.change <- paste0(icesRound(100*(summary.output3$total.catch.tonnes-latest.advice)/latest.advice), "%")
+  summary.output3<- summary.output3[,c("Basis", "total.catch.tonnes","dead.removals.tonnes","landings.tonnes","unwanted.above.MCS.tonnes","dead.discards.below.MCS.tonnes","surviving.discards.tonnes","harvest.rate", "percentage.advice.change")]
   
     
  #Collect all outputs and inputs into a single object
