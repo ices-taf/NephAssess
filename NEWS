@@ -1,4 +1,26 @@
 --------------------------------------------------------------------------------
+NephAssess 0.0-0 (2015-09-01)
+--------------------------------------------------------------------------------
+o tv.workup.fu.R
+  Code added to calculate a CV (result output into file under folder “fishstats”
+
+o select.strata.dh.VMS.R
+  New function to evaluate whether survey points in Devil’s hole are on the VMS strata 
+
+o historical HRs.2015.R
+  Function “exploitation.table.2015” edited to include dead discard weights in the summary table (request from ICES, probably not relevant in the future)
+
+o forecast.table.2014.R
+  Corrected error with discard rate calculation (when the average of the last 3 years < 1% the
+  discard percentage was multiplied by 100. eg Fladen_discard_12-14=0.6% -----> old output was 60%
+
+o forecast.table.2015.R
+  Function edited from forecast.table.2014.R to accommodate changes in the format and method of forecast for 
+  advice given in 2015. Landings and discards are now wanted and unwanted catches respectively (no survival).
+  Total discard rates used in place of dead discard rates.
+
+
+--------------------------------------------------------------------------------
 NephAssess 0.0-0 (2015-04-01)
 --------------------------------------------------------------------------------
 o Correction in forecast script (“forecast.table.2014.r”)to deal with situations where mean discards are lower than 1%.New function “forecast.table.2015.r” to generate a new forecast table with the format agreed by ICES for the Nephrops catch advice for 2016.
