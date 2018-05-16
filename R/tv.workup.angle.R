@@ -2,7 +2,7 @@
 #29/07/2014 added an argument for removing counters/stations (over/undercounting) from workup)
 
 tv.workup.angle <-
-function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE, na.rm = TRUE, old = TRUE, subset = FALSE, counters.removed=NULL, station.names=FALSE)
+function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE, na.rm = TRUE, old = TRUE, subset = FALSE, counters.removed=NULL, wg=FALSE, station.names=FALSE)
 {
   old.dir <- setwd(wk.dir)
   on.exit(setwd(old.dir), add = TRUE)
@@ -276,9 +276,24 @@ function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE
 
 	##Sums the average count and divides by the total viewed area for each station
 	average.density <- sapply(count.files, function(x) sum(x$average, na.rm = na.rm)) / viewed.area
+	
+	total.counts <-sapply(count.files, function(x) sum(x$average, na.rm = na.rm)) 
 
     ## make output list
-    if(station.names==T)
+	 if(wg==T){
+	   out <-
+	     list(
+	       survey = rep(as.character(subset(counts,Station==file.list[1])$Cruise[1]),length(file.list)),
+	       year = 2000 + as.numeric(substr(file.list,3,4)),
+	       station = file.list,
+	       long = lons,
+	       lat = lats,
+	       density = round(average.density, 2),
+	       distanceoverground = run.length,
+	       area = viewed.area,
+	       count = total.counts,
+	       ground = substr(file.list,1,2))
+	 } else if(station.names==T)
 	{
 		out <-
 		  list(

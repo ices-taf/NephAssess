@@ -132,20 +132,11 @@ function(wk.dir, stock, effort.data,
   means <- means[c("year", "means.male.low.c", "means.female.low.c", "means.male.low", "means.female.low", "means.male.high", "means.female.high")]
   names(means) <- c("year", "males", "females", "males.", "females", "males", "females")
   means <- data.frame(means)
+
   tmp.3 <- means
+
+
   write.table(tmp.3, paste(wk.dir, "Mean sizes.csv", sep = ""), row.names=FALSE, sep = ",")
 
-  
-  ################################################################################################################################
-  # 4. Landings (tonnes), effort (days trawling) and LPUE (kg/day trawling) of Scottish  trawlers      #
-  #    This is for the effort table used in the North Sea WG                                       #
-  ################################################################################################################################
-  
-  eff.year.range<- dimnames(effort.data)$year
-  tmp.4<- data.frame(Year=eff.year.range,Landings=NA,Effort=NA,LPUE=NA)
-  tmp.4$Landings<- as.numeric(quantSums(seasonSums(stock@landings[c("OTB_CRU","OTT_CRU","OTHER"),eff.year.range,,,,])))
-  tmp.4$Effort<- round(as.numeric(quantSums(effort.data)))
-  tmp.4$LPUE<- round(1000*tmp.4$Landings/tmp.4$Effort,1)
-  write.table(tmp.4, paste(wk.dir, "Effort_table_WGNSSK.csv", sep = ""), row.names=FALSE, sep = ",")
 }
 

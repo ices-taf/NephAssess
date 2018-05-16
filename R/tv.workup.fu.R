@@ -198,6 +198,8 @@ function(wk.dir, strata.object, survey.data,  f.u)
   strata_list <- lapply(strata.list, function(x) {class(x) <- "tvworkup"; x})
   class(strata.list) <- "tvworkup"
 
+  invisible( strata.list )
+  
   #########################################################
   ##### CVs - Standard relative error calculation #####
   #########################################################
@@ -218,5 +220,4 @@ function(wk.dir, strata.object, survey.data,  f.u)
   #Write CV
   write.table(as.matrix(cv.total), paste(getwd(), "/", "fishstats/", f.u, "_CV.csv", sep = ""), sep = ",", row.names=TRUE, col.names=FALSE)
 
-  invisible( strata.list )
 }
