@@ -1,7 +1,8 @@
 #02/08/2013 added 5th counter burrow densities in the output data frame
+#29/07/2014 added an argument for removing counters/stations (over/undercounting) from workup)
 
 tv.workup.angle <-
-function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE, na.rm = TRUE, old = TRUE, subset = FALSE, station.names=FALSE)
+function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE, na.rm = TRUE, old = TRUE, subset = FALSE, counters.removed=NULL, station.names=FALSE)
 {
   old.dir <- setwd(wk.dir)
   on.exit(setwd(old.dir), add = TRUE)
@@ -64,70 +65,8 @@ function(wk.dir, database, index = "index.txt", do.plots = TRUE, verbose = FALSE
   
   if(subset == TRUE)		#Remove some counters with evidence from 3rd counts 
   {
-	func.unit<- as.character(unique(substr(file.list, 1,2)))
-	
-	if(func.unit == "NM")
-	{
-		counts<- subset(counts, !(Station == "NM13002" & Counter_ID == "GJ"))
-		counts<- subset(counts, !(Station == "NM13003" & Counter_ID == "GJ"))
-		counts<- subset(counts, !(Station == "NM13004" & Counter_ID == "GJ"))
-		counts<- subset(counts, !(Station == "NM13005" & Counter_ID == "GJ"))
-		counts<- subset(counts, !(Station == "NM13014" & Counter_ID == "GM"))
-		counts<- subset(counts, !(Station == "NM13015" & Counter_ID == "GM"))
-		counts<- subset(counts, !(Station == "NM13017" & Counter_ID == "GJ"))
-		counts<- subset(counts, !(Station == "NM13018" & Counter_ID == "GJ"))
-		counts<- subset(counts, !(Station == "NM13020" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "NM13023" & Counter_ID == "GJ"))
-		counts<- subset(counts, !(Station == "NM13031" & Counter_ID == "CM"))
-	}
-	
-	if(func.unit == "SM")
-	{
-		counts<- subset(counts, !(Station == "SM13001" & Counter_ID == "GM"))
-		counts<- subset(counts, !(Station == "SM13002" & Counter_ID == "GM"))
-		counts<- subset(counts, !(Station == "SM13005" & Counter_ID == "GM"))
-		counts<- subset(counts, !(Station == "SM13006" & Counter_ID == "GM"))
-		counts<- subset(counts, !(Station == "SM13012" & Counter_ID == "AW"))
-		counts<- subset(counts, !(Station == "SM13013" & Counter_ID == "CM"))
-		counts<- subset(counts, !(Station == "SM13027" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "SM13028" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "SM13031" & Counter_ID == "GM"))
-		counts<- subset(counts, !(Station == "SM13033" & Counter_ID == "GM"))
-		counts<- subset(counts, !(Station == "SM13035" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "SM13038" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "SM13041" & Counter_ID == "GM"))
-		counts<- subset(counts, !(Station == "SM13043" & Counter_ID == "MI"))
-	}
-	
-	if(func.unit == "CL")
-	{
-		counts<- subset(counts, !(Station == "CL13002" & Counter_ID == "CM"))
-		counts<- subset(counts, !(Station == "CL13005" & Counter_ID == "CM"))
-		counts<- subset(counts, !(Station == "CL13007" & Counter_ID == "CM"))
-		counts<- subset(counts, !(Station == "CL13007" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "CL13008" & Counter_ID == "CM"))
-		counts<- subset(counts, !(Station == "CL13008" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "CL13008" & Counter_ID == "HD"))
-		counts<- subset(counts, !(Station == "CL13009" & Counter_ID == "CM"))
-		counts<- subset(counts, !(Station == "CL13009" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "CL13009" & Counter_ID == "HD"))
-		counts<- subset(counts, !(Station == "CL13010" & Counter_ID == "CM"))
-		counts<- subset(counts, !(Station == "CL13010" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "CL13011" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "CL13012" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "CL13017" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "CL13019" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "CL13022" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "CL13024" & Counter_ID == "MI"))
-		counts<- subset(counts, !(Station == "CL13027" & Counter_ID == "CM"))
-		counts<- subset(counts, !(Station == "CL13037" & Counter_ID == "CM"))
-	}
-	
-	if(func.unit == "SJ")
-	{
-		counts<- subset(counts, !(Station == "SJ13006" & Counter_ID == "GM"))
-		counts<- subset(counts, !(Station == "SJ13007" & Counter_ID == "GM"))
-	}
+	remove<- read.table(counters.removed, sep="\t", head=T)
+	counts<- subset(counts, !paste(counts$Station, counts$Counter_ID) %in% paste(remove$Station, remove$Counter_ID))
   }
   
     pos.files <- 

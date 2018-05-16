@@ -31,6 +31,9 @@ function(wk.dir, strata.object, survey.data,  f.u)
      
 	"jura" = list( 
       areas = c(MUD = 90, "MUDDY SAND" = 142, "SANDY MUD" = 150)),
+	  
+	  "noup" = list( 
+      areas = c("MUDDY SAND" = 409)),
 	 
     "fladen" = list( 
       areas = c(C = 15634 , MC = 4303.5 , MF = 4966.6, "F" = 3248.1))
@@ -51,6 +54,7 @@ function(wk.dir, strata.object, survey.data,  f.u)
 	"firth forth" = 1.18,
 	"north minch" = 1.33,
 	"jura" = 1.19,
+	"noup"=1.35,
 	"fladen" = 1.35)
   
   strata.object <- check.strata (strata.object)

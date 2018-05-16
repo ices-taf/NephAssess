@@ -43,7 +43,7 @@ function (f.u)
 {
   f.u <- tolower(f.u)
   stopifnot( f.u %in% c("south minch", "clyde", "jura", "moray firth", "firth forth", "north minch", "fladen",
-              "devils hole"))
+              "devils hole", "noup"))
   
   f.u
 }
@@ -248,3 +248,19 @@ function (obj, check = FALSE)
     })
 }
 
+
+noup.strata <-
+function(obj, check = FALSE)
+{
+  assign.type <-
+  function (x)
+  {
+    if (any(x %in% 1:2)) return( "MUDDY SAND" )
+	if (any(x %in% 3:5)) return( "FALSE" )
+	return ( "FALSE" )
+  }
+
+  if (check) return( cbind( sapply( seq_along(noup.poly), assign.type), names(noup.poly) ) )
+                               
+  sapply( which.poly (obj, noup.poly), assign.type)       
+}

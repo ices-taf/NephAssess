@@ -1,4 +1,21 @@
 --------------------------------------------------------------------------------
+NephAssess 0.0-0 (2014-07-29)
+--------------------------------------------------------------------------------
+o Change in TV workup functions to include Noup
+o Strata.R (noup.strata & check)
+o Tv.workup.fu.R
+o no.plot.R
+
+o tv.wokup.angle.R
+o tv.wokup.angle.R: added an arguments (subset=T, counters.removed=file) for removing counters from workup when they are over/undercounting consistently. The “counters.removed” argument is a txt file in the following format:
+
+Station	Counter_ID
+FL14005	KB
+FL14006	KB
+FL14019	SD
+
+
+--------------------------------------------------------------------------------
 NephAssess 0.0-0 (2014-03-14)
 --------------------------------------------------------------------------------
 o NephAssess package modified to work on R 3.x.x.
