@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+NephAssess 0.0-0 (2015-04-01)
+--------------------------------------------------------------------------------
+o Correction in forecast script (“forecast.table.2014.r”)to deal with situations where mean discards are lower than 1%.New function “forecast.table.2015.r” to generate a new forecast table with the format agreed by ICES for the Nephrops catch advice for 2016.
+
+--------------------------------------------------------------------------------
 NephAssess 0.0-0 (2014-07-29)
 --------------------------------------------------------------------------------
 o Change in TV workup functions to include Noup

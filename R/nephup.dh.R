@@ -165,10 +165,10 @@ function(wdir, lfile, msfile,lclass, lwparams)
   old.format.files<- seq(1, 2008-market.sampling.start.year+1, by=1)
   
   ## in new format files, range of sizes goes from 9-71	(2009-2010)
-  new.format.files<- seq(2009-market.sampling.start.year+1, 2011-market.sampling.start.year+1, by=1)
+  new.format.files<- seq(2009-market.sampling.start.year+1, 2010-market.sampling.start.year+1, by=1)
   
   ## in intercatch format files, range of sizes varies		(from 2011)
-#  intercatch.format.files<- seq(2011-market.sampling.start.year+1, market.sampling.end.year-market.sampling.start.year+1, by=1)
+  intercatch.format.files<- seq(2011-market.sampling.start.year+1, market.sampling.end.year-market.sampling.start.year+1, by=1)
   
   
   
@@ -245,32 +245,32 @@ function(wdir, lfile, msfile,lclass, lwparams)
   
   
   ##loop to read market sampling files from 2011 - intercatch format (CM 18/4/2012)
-#  for(i in (intercatch.format.files)){
+  for(i in (intercatch.format.files)){
   
-#  temp      <- read.table(paste(working.directory, sampling.files[4+i], sep=""), skip=1, sep="\t", comment.char="", header=T)
+  temp      <- read.table(paste(working.directory, sampling.files[4+i], sep=""), skip=1, sep="\t", comment.char="", header=T)
     
-#  sampling.year <-  seq(market.sampling.start.year, market.sampling.end.year, by=1)[i]
+  sampling.year <-  seq(market.sampling.start.year, market.sampling.end.year, by=1)[i]
      
-#  sampled.landings<-cbind(temp[,2], temp[,3], temp[,4], temp[,6], temp[,7], temp[,9], temp[,10], temp[,12], temp[,13])
+  sampled.landings<-cbind(temp[,2], temp[,3], temp[,4], temp[,6], temp[,7], temp[,9], temp[,10], temp[,12], temp[,13])
     
   ## assigns row and column headings to the sampling matrix
   
-#  for(j in 1:dim(sampled.landings)[1])
-#   {
-#  	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),1,1,] <- round(sampled.landings[j,2]/1000, 3)
-#	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),2,1,] <- round(sampled.landings[j,3]/1000, 3)
+  for(j in 1:dim(sampled.landings)[1])
+   {
+  	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),1,1,] <- round(sampled.landings[j,2]/1000, 3)
+	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),2,1,] <- round(sampled.landings[j,3]/1000, 3)
 	  
-#	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),1,2,] <- round(sampled.landings[j,4]/1000, 3)
-#	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),2,2,] <- round(sampled.landings[j,5]/1000, 3)
+	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),1,2,] <- round(sampled.landings[j,4]/1000, 3)
+	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),2,2,] <- round(sampled.landings[j,5]/1000, 3)
 	  
-#	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),1,3,] <- round(sampled.landings[j,6]/1000, 3)
-#	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),2,3,] <- round(sampled.landings[j,7]/1000, 3)
+	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),1,3,] <- round(sampled.landings[j,6]/1000, 3)
+	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),2,3,] <- round(sampled.landings[j,7]/1000, 3)
 	  
-#	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),1,4,] <- round(sampled.landings[j,8]/1000, 3)
-#	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),2,4,] <- round(sampled.landings[j,9]/1000, 3)
-#	}
+	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),1,4,] <- round(sampled.landings[j,8]/1000, 3)
+	  neph.landings.n.temp[as.character(sampled.landings[j,1]),(sampling.year-landings.start.year+1),2,4,] <- round(sampled.landings[j,9]/1000, 3)
+	}
   
-#  }
+  }
   
   neph.landings.n.temp[is.na(neph.landings.n.temp)]<- 0
   
