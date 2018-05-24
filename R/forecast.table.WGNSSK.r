@@ -66,10 +66,10 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
      
 # Discard rates
   disc.mean.rate <-round(mean(expl.dat$discard.rate[expl.dat$year %in% disc.rt.yrs])/100,3)
-  disc.mean.rate.above.MCS<- round(disc.mean.rate*(disc.mean.wt-disc.below.MCS.mean.wt)/(disc.above.MCS.mean.wt-disc.below.MCS.mean.wt),3)
+  disc.mean.rate.above.MCS<- disc.mean.rate*(disc.mean.wt-disc.below.MCS.mean.wt)/(disc.above.MCS.mean.wt-disc.below.MCS.mean.wt)
   disc.mean.rate.below.MCS<- disc.mean.rate-disc.mean.rate.above.MCS
-  dead.disc.mean.rate<- round(disc.mean.rate*(1-d.surv)/(disc.mean.rate*(1-d.surv) + (1-disc.mean.rate)),3)
-  dead.disc.mean.rate.below.MCS<- round(disc.mean.rate.below.MCS*(1-d.surv)/(disc.mean.rate.below.MCS*(1-d.surv) + (1-disc.mean.rate.below.MCS)),3)
+  dead.disc.mean.rate<- disc.mean.rate*(1-d.surv)/(disc.mean.rate*(1-d.surv) + (1-disc.mean.rate))
+  dead.disc.mean.rate.below.MCS<- disc.mean.rate.below.MCS*(1-d.surv)/(disc.mean.rate.below.MCS*(1-d.surv) + (1-disc.mean.rate.below.MCS))
 
   if(disc.mean.rate==0) 
     {
@@ -153,14 +153,14 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   out.sum$input.txt[6] <-paste("Discard rate total (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
                                ") = ",disc.mean.rate," proportion by number",sep="" )
   out.sum$input.txt[7] <-paste("Discard rate > MCS (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
-                               ") = ",disc.mean.rate.above.MCS," proportion by number",sep="" )
+                               ") = ",round(disc.mean.rate.above.MCS,3)," proportion by number",sep="" )
   out.sum$input.txt[8] <-paste("Discard rate < MCS (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
-                               ") = ",disc.mean.rate.below.MCS," proportion by number",sep="" )
+                               ") = ",round(disc.mean.rate.below.MCS,3)," proportion by number",sep="" )
   out.sum$input.txt[9] <-paste("Discard survival rate = ",d.surv," proportion by number",sep="")
   out.sum$input.txt[10] <-paste("Dead discard rate total (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
-                               ") = ",dead.disc.mean.rate," proportion by number",sep="" )
+                               ") = ",round(dead.disc.mean.rate,3)," proportion by number",sep="" )
   out.sum$input.txt[11] <-paste("Dead discard rate < MCS (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
-                                ") = ",dead.disc.mean.rate.below.MCS," proportion by number",sep="" )
+                                ") = ",round(dead.disc.mean.rate.below.MCS,3)," proportion by number",sep="" )
   
   #Save output to file
   filename<- paste(fu,"_forecast_table_WGNSSK.csv",sep="")
