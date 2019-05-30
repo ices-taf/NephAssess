@@ -2,13 +2,17 @@ Package: NephAssess
 Version: 1.0-0
 Date: 2018-04-01
 Title: SG Nephrops assessment functions
-Description: A collection of functions for the WGCSE and WGNSSK Nephrops assessments
+Description: A collection of functions for the WGCSE and WGNSSK Nephrops
+    assessments
 Authors@R: c(person("Carlos", "Mesquita", role=c("aut", "cre"), email="c.mesquita@marlab.ac.uk"),
              person("Sarah", "Millar", role=c("aut")),
              person("Helen", "Dobby", role=c("aut")))
-Imports: FLCore,
-         sp,
-         RODBC,
-         alphahull,
-         rgeos,
-         icesAdvice
+Imports:
+    FLCore,
+    sp,
+    RODBC,
+    alphahull,
+    rgeos,
+    icesAdvice
+RoxygenNote: 5.0.1
+License: file LICENSE
