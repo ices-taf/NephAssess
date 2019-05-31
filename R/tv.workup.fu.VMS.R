@@ -206,6 +206,26 @@ function(wk.dir, strata.object, survey.data,  f.u, vms.area=NULL)
   strata_list <- lapply(strata.list, function(x) {class(x) <- "tvworkup"; x})
   class(strata.list) <- "tvworkup"
 
+  #########################################################
+  ##### CVs - Standard relative error calculation #####
+  #########################################################
+  n.station<- as.numeric(results.by.stratum.bias.corrected[,"Number of stations"])
+  var.station<- as.numeric(results.by.stratum.bias.corrected[,"Observed variance"])
+  mean.station<- as.numeric(results.by.stratum.bias.corrected[,"Mean burrow density (no./m2)"])
+  
+  n.station<- n.station[1:(length(n.station)-1)]
+  var.station<- var.station[1:(length(var.station)-1)]
+  mean.station<- mean.station[1:(length(mean.station)-1)]
+  
+  var.total<- sum(var.station*n.station)/sum(n.station)
+  mean.total<- sum(mean.station*n.station)/sum(n.station)
+  
+  sd.total<- sqrt(var.total)/sqrt(sum(n.station))
+  cv.total<- round(sd.total/mean.total,3)
+  names(cv.total)<- f.u
+  #Write CV
+  write.table(as.matrix(cv.total), paste(getwd(), "/", "fishstats/", f.u, "_CV.csv", sep = ""), sep = ",", row.names=TRUE, col.names=FALSE)
+  
   invisible( strata.list )
 
 }

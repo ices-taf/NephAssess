@@ -1,5 +1,5 @@
 `nephup.long.term.plots_kw_effort_aggregated` <-
-function(wk.dir, stock, effort.data.days=NULL, effort.data.kwdays=NULL, international = F, international.landings = NULL)
+function(wk.dir, stock, effort.data.days=NULL, effort.data.kwdays=NULL, international = F, international.landings = NULL, output.dir)
 {
 
   rescale<- function(v,reference)  #v is vector to scale
@@ -77,7 +77,7 @@ function(wk.dir, stock, effort.data.days=NULL, effort.data.kwdays=NULL, internat
     return ( out )
   }
  
-  png(get.fname(paste(wk.dir, "long term trends", sep = "")), width = 2100, height = 3000, pointsize = 50)
+  png(get.fname(paste(output.dir, "long term trends", sep = "")), width = 2100, height = 3000, pointsize = 50)
 
   par(mfrow=c(4,1))
 
