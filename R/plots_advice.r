@@ -2,7 +2,7 @@ plots.advice<-
 function(wk.dir, f.u, MSY.hr, stock.object, international.landings, tv_results, Exploitation_summary)
 {
   f.u <- check.fu (f.u)
-  setwd(wk.dir)
+#  setwd(wk.dir)
 
   hist.land <- read.csv(international.landings, header=T) 
   first.disc.yr <-switch(f.u,1990,"fladen"=2000,"jura"=9999)
