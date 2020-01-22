@@ -49,7 +49,7 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
 
 #  setwd(wk.dir)
   expl.dat<- read.csv(paste0(wk.dir, hist.sum.table))
-  wts<- read.csv(paste0(wk.dir,mean.wts))
+  wts<- read.csv(mean.wts)
 
 #----------------------------Inputs----------------------------------------------------------------------------
 

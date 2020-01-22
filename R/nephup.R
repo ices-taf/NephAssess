@@ -3,9 +3,9 @@
 # Created by: Carlos Mesquita
 # Date: 30/11/2015
 # Created: 31/04/2016
-# Modified: 21/04/2017
+# Modified: 21/01/2020
 # Packges used: 
-# R (3.1.2)
+# R (3.6.2)
 ##This new "nephup" function replaces previous function created by
 #Neil. This function reads the stock object from the previous year
 #and adds new data from txt files (same format as before)
@@ -38,8 +38,15 @@ function(wdir, stock.object, lfile, bmsfile=NULL, filenames)
   landings.start.year <- as.numeric(strsplit(readLines(paste(wdir, lfile, sep=""))[2], split="\t")[[1]][1])
   landings.end.year   <- as.numeric(strsplit(readLines(paste(wdir, lfile, sep=""))[2], split="\t")[[1]][2])
   
+  #Fix to allow "expand" function to work on stock object. This is because in the new FLCore library a "validate" function was introduced which fails due to the "landings" slot not being considerate valid. CM 21/01/2020
+  temp.obj.landings<- stock.obj@landings
+  stock.obj@landings<- computeLandings(stock.obj)
+  temp.obj.landings<- expand(temp.obj.landings, year=as.numeric(stock.obj@range[names(stock.obj@range) == "minyear"]):landings.end.year)
+  
   #Expand existing object to the new landings year 
   stock.obj<- suppressWarnings(expand(stock.obj, year=as.numeric(stock.obj@range[names(stock.obj@range) == "minyear"]):landings.end.year))
+  stock.obj@landings<- temp.obj.landings
+  
   #Expand the 2 attributes to the stock object related with BMS
   attr(stock.obj,"bms")<- suppressWarnings(expand(attr(stock.obj,"bms"), year=as.numeric(stock.obj@range[names(stock.obj@range) == "minyear"]):landings.end.year)); attr(stock.obj,"bms")[,as.character(landings.end.year),,,,]<- 0
   attr(stock.obj,"bms.n")<- suppressWarnings(expand(attr(stock.obj,"bms.n"), year=as.numeric(stock.obj@range[names(stock.obj@range) == "minyear"]):landings.end.year)); 
