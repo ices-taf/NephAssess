@@ -11,14 +11,14 @@ function(wk.dir, f.u, MSY.hr, stock.object, international.landings, tv_results, 
   last.catch.yr <-stock.object@range["maxyear"]
   hist.land <-subset(hist.land,Year>=first.catch.yr)
   stock.object <-trim(stock.object,year=first.catch.yr:last.catch.yr); attr(stock.object,"bms.n")<- trim(attr(stock.object,"bms.n"),year=first.catch.yr:last.catch.yr)
-  tot.wt <-seasonSums(quantSums(unitSums(stock.object@landings.n*stock.object@landings.wt))) + seasonSums(quantSums(unitSums(stock.object@bms.n*stock.object@discards.wt)))
+  tot.wt <-seasonSums(quantSums(unitSums(stock.object@landings.n*stock.object@landings.wt)))
   discards.wt<- seasonSums(quantSums(unitSums(stock.object@discards.n*stock.object@discards.wt)))
   discards.wt[,hist.land$Year<first.disc.yr] <-NA
   raising.factor <-hist.land$Total/tot.wt
   raising.factor[,hist.land$Year>=2011] <-1 
   hist.land$discards.tonnes <-round(c(discards.wt*raising.factor),0)
 
-  win.metafile(paste(f.u, "_advice_landings.wmf", sep=""), height=2.4, width=2.4/0.55, pointsize=12)
+  win.metafile(paste0(wk.dir, f.u, "_advice_landings.wmf"), height=2.4, width=2.4/0.55, pointsize=12)
   par(mar=c(1.5, 1.5, 1.5, 0.5))
   tmp=barplot(rbind(hist.land$Total,hist.land$discards.tonnes)/1000,plot=F, space=1.5)
   with(hist.land, tmp<- barplot(rbind(Total,discards.tonnes)/1000,names=Year, col=c("#9AC2B7","#F15D2A"), axes=F, axisnames = F, 
@@ -45,7 +45,7 @@ function(wk.dir, f.u, MSY.hr, stock.object, international.landings, tv_results, 
 	trigger <-min(tv.series$abundance[tv.series$year<2010],na.rm=TRUE)
   if (f.u == "jura"){trigger <- -100}
   
-  win.metafile(paste(f.u, "_advice_tv.wmf", sep=""), height=2.4, width=2.4/0.55, pointsize=12)
+  win.metafile(paste0(wk.dir, f.u, "_advice_tv.wmf"), height=2.4, width=2.4/0.55, pointsize=12)
   par(mar=c(1.5, 1.5, 1.5, 0.5))  
   with(tv.series, plot(year,abundance, type="l", lty=1, lwd=3,xlab="", ylab="", axes=F,ylim=c(0,max(upper,na.rm=T)*1.05)))
   with(tv.series, lines(year,upper, type="l", lty=3, lwd=2))
@@ -62,7 +62,7 @@ function(wk.dir, f.u, MSY.hr, stock.object, international.landings, tv_results, 
 ##########################################################
 #Harvest rates
 ##########################################################     
-  win.metafile(paste(f.u, "_advice_HR.wmf", sep=""), height=2.4, width=2.4/0.55, pointsize=12)
+  win.metafile(paste0(wk.dir, f.u, "_advice_HR.wmf"), height=2.4, width=2.4/0.55, pointsize=12)
   par(mar=c(1.5, 1.5, 1.5, 0.5))  
   HRs <- read.csv(paste0(wk.dir, Exploitation_summary), header=T)
   
