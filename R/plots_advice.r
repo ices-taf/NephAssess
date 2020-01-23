@@ -2,11 +2,12 @@ plots.advice<-
 function(wk.dir, f.u, MSY.hr, stock.object, international.landings, tv_results, Exploitation_summary)
 {
   f.u <- check.fu (f.u)
-#  setwd(wk.dir)
+  #setwd(wk.dir)
 
-  hist.land <- read.csv(international.landings, header=T) 
+  hist.land <- read.csv(paste0(wk.dir,international.landings), header=T) 
+  hist.tv <- read.csv(paste0(wk.dir,tv_results), header=T)
   first.disc.yr <-switch(f.u,1990,"fladen"=2000,"jura"=9999)
-  first.catch.yr <- min(read.csv(tv_results, header=T)$year)
+  first.catch.yr <- min(hist.tv$year)
   last.catch.yr <-stock.object@range["maxyear"]
   hist.land <-subset(hist.land,Year>=first.catch.yr)
   stock.object <-trim(stock.object,year=first.catch.yr:last.catch.yr); attr(stock.object,"bms.n")<- trim(attr(stock.object,"bms.n"),year=first.catch.yr:last.catch.yr)
@@ -34,7 +35,7 @@ function(wk.dir, f.u, MSY.hr, stock.object, international.landings, tv_results, 
 #UW tv survey
 ##########################################################
   
-  hist.tv <- read.csv(tv_results, header=T)
+  
   tv.series <-data.frame(year=hist.tv$year)
   first.ci.year <-min(tv.series$year)
   tv.series$abundance <-hist.tv$abundance
@@ -63,7 +64,7 @@ function(wk.dir, f.u, MSY.hr, stock.object, international.landings, tv_results, 
 ##########################################################     
   win.metafile(paste(f.u, "_advice_HR.wmf", sep=""), height=2.4, width=2.4/0.55, pointsize=12)
   par(mar=c(1.5, 1.5, 1.5, 0.5))  
-  HRs <- read.csv(Exploitation_summary, header=T)
+  HRs <- read.csv(paste0(wk.dir, Exploitation_summary), header=T)
   
   with(HRs, plot(harvest.ratio~year, type="l",cex=1,bty="l", 
         ylim=c(0, max(harvest.ratio,MSY.hr+1,na.rm=T)), lwd=1.5,axes=F,xlab="",ylab=""))
