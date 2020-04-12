@@ -290,10 +290,12 @@ function(wdir, lfile, msfile,lclass, lwparams)
   neph.landings.n[is.na(neph.landings.n)]<- 0
   
   
-  
-  return.stock <- FLStock( name=stock, landings.n=neph.landings.n, landings = neph.landings, 
+  #12/04/2020 fix to make this function work with latest R and FLCore versions
+  return.stock <- FLStock( name=stock, landings.n=neph.landings.n, 
                   stock.wt = neph.discard.wt, 
                   landings.wt=neph.discard.wt)
+  return.stock@landings <- neph.landings
+  #end fix  
   
   return.stock@stock.wt@units    <- "Kg"
   return.stock@stock.wt@units    <- "Kg"
