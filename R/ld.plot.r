@@ -91,7 +91,7 @@ m2$Mean.Catch.Length <- m2$meanlen/m2$totfreq
 m2$year <- as.numeric(m2$year)+0.5
 panel.lines(m2$Mean.Catch.Length, m2$year, type="l", lty=2, lwd=2, col="black")
 m3 <- merge(m[,c("year", "Mean.Land.Length")], m2[,c("year", "Mean.Catch.Length")])
-print(m3)
+#print(m3)
 
 
 #tab <- with(df,tapply(lenfreq, year, sum))
