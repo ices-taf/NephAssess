@@ -78,9 +78,12 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
     }
 
 #TV Survey abundance
-  surv.abundance <-expl.dat$adjusted.abundance[length(expl.dat$adjusted.abundance)]
+  
+  ab.col<- names(expl.dat)[grep("adjusted.abundance", names(expl.dat))[1]]
+  last.survey.year<- expl.dat[ max(which(!is.na(expl.dat[,ab.col]))),"year"]
+  surv.abundance <- expl.dat[expl.dat$year %in% last.survey.year,ab.col]
   if(fu %in% c("north minch", "nm", "FU11", "FU 11")){
-    surv.abundance <-expl.dat$adjusted.abundance.VMS[length(expl.dat$adjusted.abundance.VMS)]
+    surv.abundance <-expl.dat[expl.dat$year %in% last.survey.year,"adjusted.abundance.VMS"]
   }
 
 #Harvest ratios
@@ -101,7 +104,8 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   summary.output1$wanted.catch.tonnes <-round(hrs*surv.abundance*(1-disc.mean.rate)*land.mean.wt)
   summary.output1$unwanted.catch.tonnes <-round(hrs*surv.abundance*disc.mean.rate*disc.mean.wt)
   summary.output1$total.catch.tonnes <-with(summary.output1,wanted.catch.tonnes+unwanted.catch.tonnes)
-  summary.output1$percentage.advice.change <- paste0(icesRound(100*(summary.output1$total.catch.tonnes-latest.advice)/latest.advice), "%")
+  summary.output1$percentage.advice.change <- paste0(icesRound(100*(summary.output1$total.catch.tonnes-latest.advice[2])/latest.advice[2]), "%")
+  summary.output1[summary.output1$Basis %in% "Flower","percentage.advice.change"]<- paste0(icesRound(100*(summary.output1[summary.output1$Basis %in% "Flower","total.catch.tonnes"]-latest.advice[1])/latest.advice[1]), "%")
   summary.output1<- summary.output1[,c("Basis", "total.catch.tonnes", "wanted.catch.tonnes", "unwanted.catch.tonnes", "harvest.rate", "percentage.advice.change")]
 
   #Catch options assuming discarding is allowed
@@ -111,7 +115,8 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   summary.output2$surviving.discards.tonnes <-round(summary.output2$dead.discards.tonnes/((1-d.surv)/d.surv))
   summary.output2$total.catch.tonnes <-with(summary.output2,landings.tonnes+dead.discards.tonnes+surviving.discards.tonnes)
   summary.output2$dead.removals.tonnes <-with(summary.output2,landings.tonnes+dead.discards.tonnes)
-  summary.output2$percentage.advice.change <- paste0(icesRound(100*(summary.output2$total.catch.tonnes-latest.advice)/latest.advice), "%")
+  summary.output2$percentage.advice.change <- paste0(icesRound(100*(summary.output2$total.catch.tonnes-latest.advice[2])/latest.advice[2]), "%")
+  summary.output2[summary.output2$Basis %in% "Flower","percentage.advice.change"] <- paste0(icesRound(100*(summary.output2[summary.output2$Basis %in% "Flower","total.catch.tonnes"]-latest.advice[1])/latest.advice[1]), "%")
   summary.output2<- summary.output2[,c("Basis", "total.catch.tonnes", "dead.removals.tonnes", "landings.tonnes", "dead.discards.tonnes", "surviving.discards.tonnes","harvest.rate", "percentage.advice.change")]
 
   #Discarding allowed for de minimis excemptions only
@@ -126,7 +131,8 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   summary.output3$surviving.discards.tonnes<- round(surviving.discards.N*disc.below.MCS.mean.wt)
   summary.output3$total.catch.tonnes <- with(summary.output3,landings.tonnes+unwanted.above.MCS.tonnes+dead.discards.below.MCS.tonnes+surviving.discards.tonnes)
   summary.output3$dead.removals.tonnes <- with(summary.output3,landings.tonnes+unwanted.above.MCS.tonnes+dead.discards.below.MCS.tonnes)
-  summary.output3$percentage.advice.change <- paste0(icesRound(100*(summary.output3$total.catch.tonnes-latest.advice)/latest.advice), "%")
+  summary.output3$percentage.advice.change <- paste0(icesRound(100*(summary.output3$total.catch.tonnes-latest.advice[2])/latest.advice[2]), "%")
+  summary.output3[summary.output3$Basis %in% "Flower","percentage.advice.change"] <- paste0(icesRound(100*(summary.output3[summary.output3$Basis %in% "Flower","total.catch.tonnes"]-latest.advice[1])/latest.advice[1]), "%")
   summary.output3<- summary.output3[,c("Basis", "total.catch.tonnes","dead.removals.tonnes","landings.tonnes","unwanted.above.MCS.tonnes","dead.discards.below.MCS.tonnes","surviving.discards.tonnes","harvest.rate", "percentage.advice.change")]
 
 
@@ -140,7 +146,7 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
 #  out.sum$table[,2:4]<-lapply(out.sum$table[,2:4],round,0)
 #  out.sum$input.txt <-rep("",11)
 
-  out.sum$input.txt[1] <-paste("Abundance in TV (",expl.dat$year[length(expl.dat$year)],") = " ,surv.abundance,
+  out.sum$input.txt[1] <-paste("Abundance in TV (",last.survey.year,") = " ,surv.abundance,
                " million",sep="")
   out.sum$input.txt[2] <-paste("Mean weight in landings (",land.wt.yrs[1],"-",land.wt.yrs[length(land.wt.yrs)],") = ",
                          round(land.mean.wt,2)," g",sep="")
