@@ -88,11 +88,16 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
 
 #Harvest ratios
   if(!is.null(names(h.rates))){
-    summary.output <-data.frame(Basis=names(h.rates))
+    summary.output <-data.frame(Basis=names(h.rates), harvest.rate=h.rates)
+    summary.output <-rbind(summary.output[summary.output$Basis %in% "Fmsy",],
+                           summary.output[summary.output$Basis %in% "Flower",],
+                           summary.output[summary.output$Basis %in% "Fmsy",],
+                           summary.output[summary.output$Basis %in% "Fmsy",],
+                           summary.output[!summary.output$Basis %in% c("Fmsy","Flower"),])
   }else{
     summary.output <-data.frame(Basis=rep("",length(h.rates)))
   }
-  summary.output$harvest.rate <-unname(h.rates)
+  
   if(summary.output$harvest.rate[1]>1){
     hrs <-summary.output$harvest.rate/100
   }
@@ -167,6 +172,7 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
                                ") = ",round(dead.disc.mean.rate,3)," proportion by number",sep="" )
   out.sum$input.txt[11] <-paste("Dead discard rate < MCS (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
                                 ") = ",round(dead.disc.mean.rate.below.MCS,3)," proportion by number",sep="" )
+  out.sum$input.txt[12] <-paste("Latest Advice range (Fmsylower-Fmsy upper):",latest.advice[1],"-",latest.advice[2], " tonnes")
 
   #Save output to file
   filename<- paste(wk.dir,fu,"_forecast_table_WGNSSK.csv",sep="")
