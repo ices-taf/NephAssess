@@ -98,13 +98,13 @@ function(wdir, stock.object, lfile, bmsfile=NULL, filenames)
   ## reads in the market sampling index file
   landings.files <- read.table(paste0(wdir,filenames), sep="\t",head=T,stringsAsFactors=F)
   landings.files <- landings.files[landings.files$category=="landings",]
-  if(!is.na(landings.files[,"file"]))
+  if(any(!is.na(landings.files[,"file"])))
   {
     season<- dimnames(stock.obj@landings.n)$season
     len.class<- dimnames(stock.obj@landings.n)$lengths
     sex.vector<- dimnames(stock.obj@landings.n)$unit
     
-    for(y in as.character(landings.files$year))
+    for(y in as.character(landings.files[!is.na(landings.files$file),"year"]))
     {
       temp <- read.table(paste0(wdir,landings.files[landings.files$year==y,"file"]), skip=4, sep="\t", comment.char="", header=T)
       temp<-cbind(temp[,2], temp[,3], temp[,4], temp[,6], temp[,7], temp[,9], temp[,10], temp[,12], temp[,13])
@@ -138,13 +138,13 @@ function(wdir, stock.object, lfile, bmsfile=NULL, filenames)
   
   discard.files <- read.table(paste0(wdir,filenames), sep="\t",head=T,stringsAsFactors=F)
   discard.files <- discard.files[discard.files$category=="discards",]
-  if(!is.na(discard.files[,"file"]))
+  if(any(!is.na(discard.files[,"file"])))
   {
     season<- dimnames(stock.obj@discards.n)$season
     len.class<- dimnames(stock.obj@discards.n)$lengths
     sex.vector<- dimnames(stock.obj@landings.n)$unit
     
-    for(y in as.character(discard.files$year))
+    for(y in as.character(discard.files[!is.na(discard.files$file),"year"]))
     {
       temp <- read.table(paste0(wdir,discard.files[discard.files$year==y,"file"]), skip=4, sep="\t", comment.char="", header=T)
       temp<-cbind(temp[,2], temp[,3], temp[,4], temp[,6], temp[,7], temp[,9], temp[,10], temp[,12], temp[,13])
@@ -178,7 +178,7 @@ function(wdir, stock.object, lfile, bmsfile=NULL, filenames)
   
   bms.files <- read.table(paste0(wdir,filenames), sep="\t",head=T,stringsAsFactors=F)
   bms.files <- bms.files[bms.files$category=="bms",]
-  if(!is.na(bms.files[,"file"]))
+  if(any(!is.na(bms.files[,"file"])))
   {
     season<- dimnames(stock.obj@bms.n)$season
     len.class<- dimnames(stock.obj@bms.n)$lengths
