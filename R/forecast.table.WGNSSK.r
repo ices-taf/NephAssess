@@ -79,13 +79,15 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
 
 #TV Survey abundance
   
-  ab.col<- names(expl.dat)[grep("adjusted.abundance", names(expl.dat))[1]]
+  if(fu %in% c("north minch", "nm", "FU11", "FU 11")){
+    ab.col<- names(expl.dat)[grep("adjusted.abundance.VMS", names(expl.dat))[1]]
+  } else
+  {
+    ab.col<- names(expl.dat)[grep("adjusted.abundance", names(expl.dat))[1]]
+  }
   last.survey.year<- expl.dat[ max(which(!is.na(expl.dat[,ab.col]))),"year"]
   surv.abundance <- expl.dat[expl.dat$year %in% last.survey.year,ab.col]
-  if(fu %in% c("north minch", "nm", "FU11", "FU 11")){
-    surv.abundance <-expl.dat[expl.dat$year %in% last.survey.year,"adjusted.abundance.VMS"]
-  }
-
+  
 #Harvest ratios
   if(!is.null(names(h.rates))){
     summary.output <-data.frame(Basis=names(h.rates), harvest.rate=h.rates)
@@ -101,6 +103,7 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   if(summary.output$harvest.rate[1]>1){
     hrs <-summary.output$harvest.rate/100
   }
+  summary.output$harvest.rate<- icesRound(summary.output$harvest.rate)
 #--------------------------------------------------------------------------------------------------------------
 
 
@@ -162,17 +165,17 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   out.sum$input.txt[5] <-paste("Mean weight in unwanted catch < MCS (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
                                ") = ",disc.below.MCS.mean.wt," g",sep="" )
   out.sum$input.txt[6] <-paste("Discard rate total (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
-                               ") = ",disc.mean.rate," proportion by number",sep="" )
+                               ") = ",icesRound(disc.mean.rate*100)," percentage by number",sep="" )
   out.sum$input.txt[7] <-paste("Discard rate > MCS (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
-                               ") = ",round(disc.mean.rate.above.MCS,3)," proportion by number",sep="" )
+                               ") = ",icesRound(disc.mean.rate.above.MCS*100)," percentage by number",sep="" )
   out.sum$input.txt[8] <-paste("Discard rate < MCS (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
-                               ") = ",round(disc.mean.rate.below.MCS,3)," proportion by number",sep="" )
-  out.sum$input.txt[9] <-paste("Discard survival rate = ",d.surv," proportion by number",sep="")
+                               ") = ",icesRound(disc.mean.rate.below.MCS*100)," percentage by number",sep="" )
+  out.sum$input.txt[9] <-paste("Discard survival rate = ",d.surv*100," percentage by number",sep="")
   out.sum$input.txt[10] <-paste("Dead discard rate total (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
-                               ") = ",round(dead.disc.mean.rate,3)," proportion by number",sep="" )
+                               ") = ",icesRound(dead.disc.mean.rate*100)," percentage by number",sep="" )
   out.sum$input.txt[11] <-paste("Dead discard rate < MCS (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
-                                ") = ",round(dead.disc.mean.rate.below.MCS,3)," proportion by number",sep="" )
-  out.sum$input.txt[12] <-paste("Latest Advice range (Fmsylower-Fmsy upper):",latest.advice[1],"-",latest.advice[2], " tonnes")
+                                ") = ",icesRound(dead.disc.mean.rate.below.MCS*100)," percentage by number",sep="" )
+  out.sum$input.txt[12] <-paste("Latest Advice (Fmsy):",latest.advice[1]," tonnes")
 
   #Save output to file
   filename<- paste(wk.dir,fu,"_forecast_table_WGNSSK.csv",sep="")
