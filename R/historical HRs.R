@@ -1,126 +1,170 @@
 #changed 13/06/2015 to add dead discards weight to the summary table (CM)
 #changed 21/04/2017 to add BMS to the calculation of ratios (CM)
 
-exploitation.table <-
-function(wk.dir,f.u,stock.object, international.landings, survey)
+exploitation.table <- function(wk.dir, f.u, stock.object, international.landings, survey)
 {
-    f.u <- check.fu (f.u)
+  f.u <- check.fu(f.u)
+  
+  survey.data.all <- read.csv(survey)
+  year.ran <- survey.data.all$year
+  int.landings.all <- subset(read.csv(international.landings), Year %in% year.ran)$Total
+  names(int.landings.all) <- subset(read.csv(international.landings), Year %in% year.ran)$Year
+  
+  #    if(length(int.landings.all)==(length(survey.data.all$year)-1)){
+  #     int.landings.all <-c(int.landings.all,NA)
+  #    }
+  #	  names(int.landings.all)<- year.ran
+  #	  int.landings.all<- int.landings.all[names(int.landings.all) %in% year.ran]
+  
+  bias <- switch(f.u,
+                 "fladen"=1.35,
+                 "firth forth"=1.18,
+                 "moray firth"=1.21,
+                 "north minch"=1.33,
+                 "south minch"=1.32,
+                 "clyde"=1.19)
+  # "jura"=1.19) # jura bias to be discussed. No discards available 
+  
+  if (max(year.ran)>=2011){
+    yr.ran.ls <- list(seq(min(year.ran),2010,1),seq(2011,max(year.ran),1))
+  } else{
+    yr.ran.ls <- list(year.ran)
+  } 	
+  out.all <- data.frame()
+  for (l in 1:length(yr.ran.ls)){
     
-    survey.data.all<- read.csv(survey)
-    year.ran <-survey.data.all$year
-	  int.landings.all<- subset(read.csv(international.landings), Year %in% year.ran)$Total
-    names(int.landings.all) <-subset(read.csv(international.landings), Year %in% year.ran)$Year
-
-#    if(length(int.landings.all)==(length(survey.data.all$year)-1)){
- #     int.landings.all <-c(int.landings.all,NA)
-#    }
-#	  names(int.landings.all)<- year.ran
-#	  int.landings.all<- int.landings.all[names(int.landings.all) %in% year.ran]
-	
-    bias <-
-    switch(f.u,
-      "fladen"=1.35,
-      "firth forth"=1.18,
-      "moray firth"=1.21,
-      "north minch"=1.33,
-      "south minch"=1.32,
-      "clyde"=1.19)
-	 # "jura"=1.19) # jura bias to be discussed. No discards available 
+    yr.ran <- yr.ran.ls[[l]]
     
-	  if (max(year.ran)>=2011){
-      yr.ran.ls <-list(seq(min(year.ran),2010,1),seq(2011,max(year.ran),1))
-    } else{
-      yr.ran.ls <-list(year.ran)
-    } 	
-    out.all <-data.frame()
-    for (l in 1:length(yr.ran.ls)){
-	    
-      yr.ran <-yr.ran.ls[[l]]
-      
-	    stock.yr.ran <-seq(min(yr.ran),min(max(yr.ran),dims(stock.object)$maxyear),1)
-      
-#      stock <-trim(stock.object,year=yr.ran)
-      stock <-trim(stock.object,year=stock.yr.ran)
-      attr(stock,"bms.n") <-trim(attr(stock,"bms.n"),year=stock.yr.ran); attr(stock,"bms.n")[is.na(attr(stock,"bms.n"))]<- 0
-     
-      survey.data <-subset(survey.data.all,year %in% yr.ran)
-	  
- #     stock <-trim(stock.object,year=survey.data$year)
-      
-	#Mean weights
-        mean.weights.land <- mean.weight2(stock.list=list(stock))[,2]		
-        #Discards
-        mean.weights.disc <-mean.wt.disc2(stock.list=list(stock))[,2]      
-
-      stock@landings.n<- stock@landings.n + stock@bms.n #Add bms to landings for followingg calcs
-      landings.n<- seasonSums(quantSums(unitSums(stock@landings.n)))
-      discards.n <-seasonSums(quantSums(unitSums(stock@discards.n)))
-	    dead.discards<- 0.75*seasonSums(quantSums(unitSums(stock@discards.n)))
-      catches <-seasonSums(quantSums(unitSums(stock@catch.n)))
-    	removals <-seasonSums(quantSums(unitSums(stock@landings.n)))+ dead.discards
-      
-      tot.wt <-seasonSums(quantSums(unitSums(stock@landings.n*stock@landings.wt)))
-      
-      if (max(yr.ran)>=2011){
-        raising.factor <-1
-      }else{
-        raising.factor <-(int.landings.all[names(int.landings.all) %in% stock.yr.ran]/tot.wt)
-      }
+    stock.yr.ran <-seq(min(yr.ran),min(max(yr.ran),dims(stock.object)$maxyear),1)
     
-    #Discards
-      Discard.rate<- round((discards.n/catches),3)
-      Dead.discard.rate<- round((dead.discards/removals),3)
-      
-      discards.wt<- seasonSums(quantSums(unitSums(stock@discards.n*stock@discards.wt)))
-      dead.discards.wt<- seasonSums(quantSums(unitSums(0.75*stock@discards.n*stock@discards.wt)))
-
+    #  stock <- trim(stock.object,year=yr.ran)
+    stock <- trim(stock.object,year=stock.yr.ran)
+    attr(stock,"bms.n") <- trim(attr(stock,"bms.n"),year=stock.yr.ran); attr(stock,"bms.n")[is.na(attr(stock,"bms.n"))] <- 0
     
+    survey.data <- subset(survey.data.all,year %in% yr.ran)
     
-      
+    #  stock <- trim(stock.object,year=survey.data$year)
     
-    tmp <-cbind(#year=survey.data$year,
-                landings.numbers = round(raising.factor*landings.n/1000, 0),					#millions
-                discard.numbers = round(raising.factor*discards.n/1000, 0), 						#millions
-                removals.numbers = round(raising.factor*removals/1000, 0),					#millions                
-                landings.tonnes = int.landings.all[names(int.landings.all) %in% yr.ran],
-                discard.tonnes = round(raising.factor*discards.wt, 0),
-				dead.discard.tonnes = round(raising.factor*dead.discards.wt, 0),
-                discard.rate = round(Discard.rate*100, 1),
-                mean.wt.landings = round(mean.weights.land, 2),
-                mean.wt.discards = round(mean.weights.disc, 2),
-                dead.discard.rate = round(Dead.discard.rate*100, 1))
-      
-    tmp <-rbind(tmp,matrix(NA,nrow=length(yr.ran)-nrow(tmp),ncol=ncol(tmp)))
-
-    if(f.u == "north minch")
-      {	
-      #Harvest ratio
-        length(removals) <-length(yr.ran)
-        HR.VMS <- raising.factor*removals/(1000*survey.data$abundance.VMS.2/bias)
-        HR.sediment <- raising.factor*removals/(1000*survey.data$abundance.sediment/bias)
-        
-        surv.tmp <-cbind(year=survey.data$year,adjusted.abundance.sediment = round(survey.data$abundance.sediment/bias, 0),		#millions
-                         CI95.sediment = round(survey.data$confidence.interval.sediment/bias, 0),
-                         adjusted.abundance.VMS = round(survey.data$abundance.VMS.2/bias, 0),
-                         CI95.VMS = round(survey.data$confidence.interval.VMS.2/bias, 0),
-                         harvest.ratio.sediment = round(HR.sediment*100, 1),
-                          harvest.ratio.VMS = round(HR.VMS*100, 1))
+    # Mean weights
+    mean.weights.land <- mean.weight2(stock.list=list(stock))[,2]		
+    # Discards
+    mean.weights.disc <- mean.wt.disc2(stock.list=list(stock))[,2]      
+    
+    stock@landings.n <- stock@landings.n + stock@bms.n # Add bms to landings for following calcs
+    landings.n <- seasonSums(quantSums(unitSums(stock@landings.n)))
+    discards.n <-seasonSums(quantSums(unitSums(stock@discards.n)))
+    dead.discards <- 0.75*seasonSums(quantSums(unitSums(stock@discards.n)))
+    catches <- seasonSums(quantSums(unitSums(stock@catch.n)))
+    removals <- seasonSums(quantSums(unitSums(stock@landings.n)))+ dead.discards
+    
+    tot.wt <- seasonSums(quantSums(unitSums(stock@landings.n*stock@landings.wt)))
+    
+    if (max(yr.ran)>=2011){
+      raising.factor <- 1
     }else{
-        #Harvest ratio
-        length(removals) <-length(yr.ran)
-		HR <- raising.factor*removals/(1000*survey.data$abundance/bias)    
-
-        surv.tmp <-cbind(year=survey.data$year,adjusted.abundance = round(survey.data$abundance/bias, 0),		#millions
-                         CI95 = round(survey.data$confidence.interval/bias, 0),
-                          harvest.ratio = round(HR*100, 1))
+      raising.factor <- (int.landings.all[names(int.landings.all) %in% stock.yr.ran]/tot.wt)
     }
-    out.all <-rbind(out.all,cbind(surv.tmp,tmp))
+    
+    # Discards
+    Discard.rate <- (discards.n/catches)
+    Dead.discard.rate <- (dead.discards/removals)
+    
+    discards.wt <- seasonSums(quantSums(unitSums(stock@discards.n*stock@discards.wt)))
+    dead.discards.wt <- seasonSums(quantSums(unitSums(0.75*stock@discards.n*stock@discards.wt)))
+    
+    # Create temporary summary table
+    tmp <- cbind(
+      landings.numbers = round(raising.factor*landings.n/1000, 0), #millions
+      discard.numbers = round(raising.factor*discards.n/1000, 0), #millions
+      removals.numbers = round(raising.factor*removals/1000, 0), #millions                
+      landings.tonnes = int.landings.all[names(int.landings.all) %in% yr.ran],
+      discard.tonnes = round(raising.factor*discards.wt, 0),
+      dead.discard.tonnes = round(raising.factor*dead.discards.wt, 0),
+      discard.rate = Discard.rate*100,
+      mean.wt.landings = round(mean.weights.land, 2),
+      mean.wt.discards = round(mean.weights.disc, 2),
+      dead.discard.rate = Dead.discard.rate*100)
+    
+    tmp <- rbind(tmp, matrix(NA, nrow=length(yr.ran)-nrow(tmp), ncol=ncol(tmp)))
+    
+    if(f.u == "north minch")
+    {	
+      # Harvest ratio
+      length(removals) <- length(yr.ran)
+      HR.VMS <- raising.factor*removals/(1000*survey.data$abundance.VMS.2/bias)
+      HR.sediment <- raising.factor*removals/(1000*survey.data$abundance.sediment/bias)
+      
+      surv.tmp <- cbind(year = survey.data$year,
+                        adjusted.abundance.sediment = round(survey.data$abundance.sediment/bias, 0), #millions
+                        CI95.sediment = round(survey.data$confidence.interval.sediment/bias, 0),
+                        adjusted.abundance.VMS = round(survey.data$abundance.VMS.2/bias, 0),
+                        CI95.VMS = round(survey.data$confidence.interval.VMS.2/bias, 0),
+                        harvest.ratio.sediment = HR.sediment*100,
+                        harvest.ratio.VMS = HR.VMS*100)
+    }else{
+      # Harvest ratio
+      length(removals) <- length(yr.ran)
+      HR <- raising.factor*removals/(1000*survey.data$abundance/bias)    
+      
+      surv.tmp <- cbind(year = survey.data$year,
+                        adjusted.abundance = round(survey.data$abundance/bias, 0), #millions
+                        CI95 = round(survey.data$confidence.interval/bias, 0),
+                        harvest.ratio = HR*100)
+    }
+    
+    out.all <- rbind(out.all, cbind(surv.tmp,tmp))
+    #rapply(object = a[,c("harvest.ratio","discard.rate","dead.discard.rate")], f = icesRound, classes = "numeric", how = "replace")
+    
+    if(f.u == "north minch")
+    {	
+      out.ICES <- data.frame(out.all[,c("year",
+                                        "adjusted.abundance.VMS",
+                                        "CI95.VMS",
+                                        "landings.numbers",
+                                        "discard.numbers",
+                                        "removals.numbers",
+                                        "harvest.ratio.VMS",
+                                        "landings.tonnes",
+                                        "discard.tonnes",
+                                        "discard.rate",
+                                        "dead.discard.rate",
+                                        "mean.wt.landings",
+                                        "mean.wt.discards")])
+    }else{
+      out.ICES <- data.frame(out.all[,c("year",
+                                        "adjusted.abundance",
+                                        "CI95",
+                                        "landings.numbers",
+                                        "discard.numbers",
+                                        "removals.numbers",
+                                        "harvest.ratio",
+                                        "landings.tonnes",
+                                        "discard.tonnes",
+                                        "discard.rate",
+                                        "dead.discard.rate",
+                                        "mean.wt.landings",
+                                        "mean.wt.discards")])
+    }
+    names(out.ICES) <- c("Year",
+                         "UWTV abundance estimate",
+                         "95% Confidence Interval",
+                         "Landings in number",
+                         "Total discards in number*",
+                         "Removals in number",
+                         "Harvest rate (by number)**",
+                         "Landings",
+                         "Total discards*",
+                         "Discard proportion (by number)",
+                         "Dead discard proportion (by number)",
+                         "Mean weight in landings",
+                         "Mean weight in discards")
+    out.ICES <- as.data.frame(rbind(c(NA, "Millions", NA, NA, NA, NA, "%", "tonnes", NA, "%", NA, "grammes", NA), out.ICES))
+    
   }
-	
-	write.table(out.all, paste(wk.dir, "/", f.u, "_Exploitation summary.csv", sep = ""), row.names=FALSE, sep =",")
-	
-
-	
+  
+  write.table(out.all, paste(wk.dir, "/", f.u, "_Exploitation summary.csv", sep = ""), row.names=FALSE, sep =",")
+  write.table(out.ICES, paste(wk.dir, "/", f.u, "_Exploitation_summary_ICES.csv", sep = ""), row.names=FALSE, sep =",")
+  
 }
 
 
