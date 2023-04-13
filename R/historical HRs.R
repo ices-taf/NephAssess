@@ -37,13 +37,13 @@ exploitation.table <- function(wk.dir, f.u, stock.object, international.landings
     
     stock.yr.ran <-seq(min(yr.ran),min(max(yr.ran),dims(stock.object)$maxyear),1)
     
-    #  stock <- trim(stock.object,year=yr.ran)
-    stock <- trim(stock.object,year=stock.yr.ran)
-    attr(stock,"bms.n") <- trim(attr(stock,"bms.n"),year=stock.yr.ran); attr(stock,"bms.n")[is.na(attr(stock,"bms.n"))] <- 0
+    #  stock <- FLCore::trim(stock.object,year=yr.ran)
+    stock <- FLCore::trim(stock.object,year=stock.yr.ran)
+    attr(stock,"bms.n") <- FLCore::trim(attr(stock,"bms.n"),year=stock.yr.ran); attr(stock,"bms.n")[is.na(attr(stock,"bms.n"))] <- 0
     
     survey.data <- subset(survey.data.all,year %in% yr.ran)
     
-    #  stock <- trim(stock.object,year=survey.data$year)
+    #  stock <- FLCore::trim(stock.object,year=survey.data$year)
     
     # Mean weights
     mean.weights.land <- mean.weight2(stock.list=list(stock))[,2]		

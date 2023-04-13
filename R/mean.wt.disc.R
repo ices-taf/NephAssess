@@ -3,7 +3,7 @@ mean.wt.disc<- function (wk.dir, stock.list)
     miny <- max(sapply(stock.list, function(x) x@range["minyear"]))
     maxy <- max(sapply(stock.list, function(x) x@range["maxyear"]))
     years <- miny:maxy
-    new.list <- lapply(stock.list, trim, year = years)
+    new.list <- lapply(stock.list, FLCore::trim, year = years)
     wt.in.discards <- lapply(new.list, function(x) {
         tot.wt <- seasonSums(quantSums(unitSums(x@discards.n * 
             x@discards.wt)))
@@ -28,7 +28,7 @@ mean.wt.disc2<- function (stock.list)
   miny <- max(sapply(stock.list, function(x) x@range["minyear"]))
   maxy <- max(sapply(stock.list, function(x) x@range["maxyear"]))
   years <- miny:maxy
-  new.list <- lapply(stock.list, trim, year = years)
+  new.list <- lapply(stock.list, FLCore::trim, year = years)
   wt.in.discards <- lapply(new.list, function(x) {
     tot.wt <- seasonSums(quantSums(unitSums(x@discards.n * 
                                               x@discards.wt)))

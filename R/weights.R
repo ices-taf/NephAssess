@@ -10,7 +10,7 @@ function(wk.dir, stock.list)
  
 #  trims each stock object so that the year range is the same
     
-    new.list <-lapply(stock.list,trim,year=years)
+    new.list <-lapply(stock.list,FLCore::trim,year=years)
     
     wt.in.landings <-lapply(new.list,
                     function(x)
@@ -46,7 +46,7 @@ function(stock.list)
  
 #  trims each stock object so that the year range is the same
     
-    new.list <-lapply(stock.list,trim,year=years)
+    new.list <-lapply(stock.list,FLCore::trim,year=years)
     
     wt.in.landings <-lapply(new.list,
                     function(x)

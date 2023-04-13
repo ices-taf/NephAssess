@@ -3,7 +3,7 @@ create.international.landings<- function(wdir, fu, new.data.year, old.int.landin
   int<- read.csv(old.int.landings)
   scot<- read.csv(new.scotland.landings)
   ic<- read.table(IC_file, sep="\t", head=T)
-  ic.landings<- ic[ic$Catch.Cat.=="Landings",]
+  ic.landings<- ic[ic$Catch.Cat. %in% c("Landings","BMS landing"),]
   
   if (!fu==unique(ic$Stock)) { stop("FU in Intercatch file does not match specified FU") }
   if (!new.data.year==unique(ic$Year)) { stop("Year in Intercatch file does not match new.data.year") }
