@@ -37,25 +37,33 @@
 #         tonnes.
 #
 # 01/05/2015
-#  Function edited from forecast.table.r to accomodate changes in the format and method of forescast for
+#  Function edited from forecast.table.r to accommodate changes in the format and method of forescast for
 # advice given in 2015. Landings and discards are now wanted and unwanted catches respectively (no survival).
 #  Total discard rates used in place of dead discard rates.
 # 04/05/2017
 #  Function edited from forecast.table.2015 to give 3 forecast tables as requested by WGNSSK 2017
 
-forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.yrs, disc.wt.yrs, disc.rt.yrs,
-                          h.rates, d.surv =0.25, latest.advice)
+forecast.table.WGNSSK<- function(wk.dir, 
+                                 fu, 
+                                 hist.sum.table, 
+                                 mean.wts, 
+                                 land.wt.yrs, 
+                                 disc.wt.yrs, 
+                                 disc.rt.yrs,
+                                 h.rates, 
+                                 d.surv = 0.25, 
+                                 latest.advice)
 {
-
-#  setwd(wk.dir)
+  
+  #  setwd(wk.dir)
   expl.dat<- read.csv(paste0(wk.dir, hist.sum.table))
   wts<- read.csv(paste0(wk.dir, mean.wts))
-
-#----------------------------Inputs----------------------------------------------------------------------------
-
-# Discard survival
+  
+  #----------------------------Inputs----------------------------------------------------------------------------
+  
+  # Discard survival
   if(d.surv>1){d.surv <-d.surv/100}
-
+  
   # Mean weights
   #land.mean.wt <-round(mean(expl.dat$mean.wt.landings[expl.dat$year %in% land.wt.yrs],na.rm=T),2)
   #disc.mean.wt <- round(mean(expl.dat$mean.wt.discards[expl.dat$year %in% disc.wt.yrs],na.rm=T),2)
@@ -63,39 +71,45 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   disc.mean.wt <- round(mean(wts$mean.wt.discards.g[wts$years %in% disc.wt.yrs],na.rm=T),2)
   disc.above.MCS.mean.wt<- round(mean(wts$mean.wt.discards.over.g[wts$years %in% disc.wt.yrs],na.rm=T),2)
   disc.below.MCS.mean.wt<- round(mean(wts$mean.wt.discards.under.g[wts$years %in% disc.wt.yrs],na.rm=T),2)
-
-# Discard rates
+  
+  # Discard rates
   disc.mean.rate <-round(mean(expl.dat$discard.rate[expl.dat$year %in% disc.rt.yrs])/100,3)
   disc.mean.rate.above.MCS<- disc.mean.rate*(disc.mean.wt-disc.below.MCS.mean.wt)/(disc.above.MCS.mean.wt-disc.below.MCS.mean.wt)
   disc.mean.rate.below.MCS<- disc.mean.rate-disc.mean.rate.above.MCS
   dead.disc.mean.rate<- disc.mean.rate*(1-d.surv)/(disc.mean.rate*(1-d.surv) + (1-disc.mean.rate))
   dead.disc.mean.rate.below.MCS<- disc.mean.rate.below.MCS*(1-d.surv)/(disc.mean.rate.below.MCS*(1-d.surv) + (1-disc.mean.rate.below.MCS))
-
-  if(disc.mean.rate==0)
-    {
-      disc.mean.rate.above.MCS<- disc.mean.rate.below.MCS<- dead.disc.mean.rate<- dead.disc.mean.rate.below.MCS<- 0
-      disc.mean.wt<- disc.above.MCS.mean.wt<- disc.below.MCS.mean.wt<- 0
-    }
-
-#TV Survey abundance
   
-  if(fu %in% c("north minch", "nm", "FU11", "FU 11")){
-    ab.col<- names(expl.dat)[grep("adjusted.abundance.VMS", names(expl.dat))[1]]
-  } else
+  if(disc.mean.rate==0)
   {
-    ab.col<- names(expl.dat)[grep("adjusted.abundance", names(expl.dat))[1]]
+    disc.mean.rate.above.MCS<- disc.mean.rate.below.MCS<- dead.disc.mean.rate<- dead.disc.mean.rate.below.MCS<- 0
+    disc.mean.wt<- disc.above.MCS.mean.wt<- disc.below.MCS.mean.wt<- 0
   }
-  last.survey.year<- expl.dat[ max(which(!is.na(expl.dat[,ab.col]))),"year"]
+  
+  #TV Survey abundance
+  if(fu %in% c("north minch", "nm", "FU11", "FU 11")){
+    
+    ab.col <- names(expl.dat)[grep("adjusted.abundance.VMS", names(expl.dat))[1]]
+    
+  } else if(fu %in% c("south minch", "sm", "FU12", "FU 12")){
+    
+    ab.col <- names(expl.dat)[grep("adjusted.abundance.krige", names(expl.dat))[1]]
+    
+  } else {
+    
+    ab.col <- names(expl.dat)[grep("adjusted.abundance", names(expl.dat))[1]]
+    
+  }
+  last.survey.year <- expl.dat[ max(which(!is.na(expl.dat[,ab.col]))),"year"]
   surv.abundance <- expl.dat[expl.dat$year %in% last.survey.year,ab.col]
   
-#Harvest ratios
+  #Harvest ratios
   if(!is.null(names(h.rates))){
-    summary.output <-data.frame(Basis=names(h.rates), harvest.rate=h.rates)
-    summary.output <-rbind(summary.output[summary.output$Basis %in% "Fmsy",],
-                           summary.output[summary.output$Basis %in% "Flower",],
-                           summary.output[summary.output$Basis %in% "Fmsy",],
-                           summary.output[summary.output$Basis %in% "Fmsy",],
-                           summary.output[!summary.output$Basis %in% c("Fmsy","Flower"),])
+    summary.output <- data.frame(Basis=names(h.rates), harvest.rate=h.rates)
+    summary.output <- rbind(summary.output[summary.output$Basis %in% "Fmsy",],
+                            summary.output[summary.output$Basis %in% "Flower",],
+                            summary.output[summary.output$Basis %in% "Fmsy",],
+                            summary.output[summary.output$Basis %in% "Fmsy",],
+                            summary.output[!summary.output$Basis %in% c("Fmsy","Flower"),])
   }else{
     summary.output <-data.frame(Basis=rep("",length(h.rates)))
   }
@@ -104,9 +118,9 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
     hrs <-summary.output$harvest.rate/100
   }
   summary.output$harvest.rate<- icesRound(summary.output$harvest.rate)
-#--------------------------------------------------------------------------------------------------------------
-
-
+  #--------------------------------------------------------------------------------------------------------------
+  
+  
   #Catch options assuming zero discards
   summary.output1<-summary.output
   summary.output1$wanted.catch.tonnes <-round(hrs*surv.abundance*(1-disc.mean.rate)*land.mean.wt)
@@ -115,7 +129,7 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   summary.output1$percentage.advice.change <- paste0(icesRound(100*(summary.output1$total.catch.tonnes-latest.advice[2])/latest.advice[2]), "%")
   summary.output1[summary.output1$Basis %in% "Flower","percentage.advice.change"]<- paste0(icesRound(100*(summary.output1[summary.output1$Basis %in% "Flower","total.catch.tonnes"]-latest.advice[1])/latest.advice[1]), "%")
   summary.output1<- summary.output1[,c("Basis", "total.catch.tonnes", "wanted.catch.tonnes", "unwanted.catch.tonnes", "harvest.rate", "percentage.advice.change")]
-
+  
   #Catch options assuming discarding is allowed
   summary.output2<-summary.output
   summary.output2$landings.tonnes <-round(hrs*surv.abundance*(1-dead.disc.mean.rate)*land.mean.wt)
@@ -126,7 +140,7 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   summary.output2$percentage.advice.change <- paste0(icesRound(100*(summary.output2$total.catch.tonnes-latest.advice[2])/latest.advice[2]), "%")
   summary.output2[summary.output2$Basis %in% "Flower","percentage.advice.change"] <- paste0(icesRound(100*(summary.output2[summary.output2$Basis %in% "Flower","total.catch.tonnes"]-latest.advice[1])/latest.advice[1]), "%")
   summary.output2<- summary.output2[,c("Basis", "total.catch.tonnes", "dead.removals.tonnes", "landings.tonnes", "dead.discards.tonnes", "surviving.discards.tonnes","harvest.rate", "percentage.advice.change")]
-
+  
   #Discarding allowed for de minimis excemptions only
   summary.output3<-summary.output
   dead.discards.below.MCS.N<- hrs*surv.abundance*dead.disc.mean.rate.below.MCS
@@ -142,24 +156,24 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
   summary.output3$percentage.advice.change <- paste0(icesRound(100*(summary.output3$total.catch.tonnes-latest.advice[2])/latest.advice[2]), "%")
   summary.output3[summary.output3$Basis %in% "Flower","percentage.advice.change"] <- paste0(icesRound(100*(summary.output3[summary.output3$Basis %in% "Flower","total.catch.tonnes"]-latest.advice[1])/latest.advice[1]), "%")
   summary.output3<- summary.output3[,c("Basis", "total.catch.tonnes","dead.removals.tonnes","landings.tonnes","unwanted.above.MCS.tonnes","dead.discards.below.MCS.tonnes","surviving.discards.tonnes","harvest.rate", "percentage.advice.change")]
-
-
- #Collect all outputs and inputs into a single object
+  
+  
+  #Collect all outputs and inputs into a single object
   out.sum <-vector("list")
   out.sum$table1 <-summary.output1
   out.sum$table2 <-summary.output2
   out.sum$table3 <-summary.output3
-
-
-#  out.sum$table[,2:4]<-lapply(out.sum$table[,2:4],round,0)
-#  out.sum$input.txt <-rep("",11)
-
+  
+  
+  #  out.sum$table[,2:4]<-lapply(out.sum$table[,2:4],round,0)
+  #  out.sum$input.txt <-rep("",11)
+  
   out.sum$input.txt[1] <-paste("Abundance in TV (",last.survey.year,") = " ,surv.abundance,
-               " million",sep="")
+                               " million",sep="")
   out.sum$input.txt[2] <-paste("Mean weight in landings (",land.wt.yrs[1],"-",land.wt.yrs[length(land.wt.yrs)],") = ",
-                         round(land.mean.wt,2)," g",sep="")
+                               round(land.mean.wt,2)," g",sep="")
   out.sum$input.txt[3] <-paste("Mean weight in discards (",disc.wt.yrs[1],"-",disc.wt.yrs[length(disc.wt.yrs)],") = ",
-                         round(disc.mean.wt,2)," g",sep="")
+                               round(disc.mean.wt,2)," g",sep="")
   out.sum$input.txt[4] <-paste("Mean weight in unwanted catch > MCS (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
                                ") = ",disc.above.MCS.mean.wt," g",sep="" )
   out.sum$input.txt[5] <-paste("Mean weight in unwanted catch < MCS (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
@@ -172,11 +186,11 @@ forecast.table.WGNSSK<- function(wk.dir, fu, hist.sum.table, mean.wts, land.wt.y
                                ") = ",icesRound(disc.mean.rate.below.MCS*100)," percentage by number",sep="" )
   out.sum$input.txt[9] <-paste("Discard survival rate = ",d.surv*100," percentage by number",sep="")
   out.sum$input.txt[10] <-paste("Dead discard rate total (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
-                               ") = ",icesRound(dead.disc.mean.rate*100)," percentage by number",sep="" )
+                                ") = ",icesRound(dead.disc.mean.rate*100)," percentage by number",sep="" )
   out.sum$input.txt[11] <-paste("Dead discard rate < MCS (",disc.rt.yrs[1],"-",disc.rt.yrs[length(disc.rt.yrs)],
                                 ") = ",icesRound(dead.disc.mean.rate.below.MCS*100)," percentage by number",sep="" )
   out.sum$input.txt[12] <-paste("Latest Advice (Fmsy):",latest.advice[1]," tonnes")
-
+  
   #Save output to file
   filename<- paste(wk.dir,fu,"_forecast_table_WGNSSK.csv",sep="")
   cat("Catch options assuming zero discards","\n",file=filename, append=FALSE)

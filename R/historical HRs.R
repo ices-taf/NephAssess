@@ -89,6 +89,7 @@ exploitation.table <- function(wk.dir, f.u, stock.object, international.landings
     
     if(f.u == "north minch")
     {	
+      
       # Harvest ratio
       length(removals) <- length(yr.ran)
       HR.VMS <- raising.factor*removals/(1000*survey.data$abundance.VMS.2/bias)
@@ -101,7 +102,24 @@ exploitation.table <- function(wk.dir, f.u, stock.object, international.landings
                         CI95.VMS = round(survey.data$confidence.interval.VMS.2/bias, 0),
                         harvest.ratio.sediment = HR.sediment*100,
                         harvest.ratio.VMS = HR.VMS*100)
+      
+    }else if(f.u == "south minch"){
+      
+      # Harvest ratio
+      length(removals) <- length(yr.ran)
+      HR.krige <- raising.factor*removals/(1000*survey.data$krig.abundance/bias)
+      HR.sediment <- raising.factor*removals/(1000*survey.data$abundance/bias)
+      
+      surv.tmp <- cbind(year = survey.data$year,
+                        adjusted.abundance.sediment = round(survey.data$abundance/bias, 0), #millions
+                        CI95.sediment = round(survey.data$confidence.interval/bias, 0),
+                        adjusted.abundance.krige = round(survey.data$krig.abundance/bias, 0),
+                        CI95.krige = round(survey.data$krig.confidence.interval/bias, 0),
+                        harvest.ratio.sediment = HR.sediment*100,
+                        harvest.ratio.krige = HR.krige*100)
+      
     }else{
+      
       # Harvest ratio
       length(removals) <- length(yr.ran)
       HR <- raising.factor*removals/(1000*survey.data$abundance/bias)    
@@ -110,13 +128,15 @@ exploitation.table <- function(wk.dir, f.u, stock.object, international.landings
                         adjusted.abundance = round(survey.data$abundance/bias, 0), #millions
                         CI95 = round(survey.data$confidence.interval/bias, 0),
                         harvest.ratio = HR*100)
+      
     }
     
-    out.all <- rbind(out.all, cbind(surv.tmp,tmp))
+    out.all <- rbind(out.all, cbind(surv.tmp, tmp))
     #rapply(object = a[,c("harvest.ratio","discard.rate","dead.discard.rate")], f = icesRound, classes = "numeric", how = "replace")
     
     if(f.u == "north minch")
     {	
+      
       out.ICES <- data.frame(out.all[,c("year",
                                         "adjusted.abundance.VMS",
                                         "CI95.VMS",
@@ -130,7 +150,25 @@ exploitation.table <- function(wk.dir, f.u, stock.object, international.landings
                                         "dead.discard.rate",
                                         "mean.wt.landings",
                                         "mean.wt.discards")])
+      
+    }else if(f.u == "south minch"){
+      
+      out.ICES <- data.frame(out.all[,c("year",
+                                        "adjusted.abundance.krige",
+                                        "CI95.krige",
+                                        "landings.numbers",
+                                        "discard.numbers",
+                                        "removals.numbers",
+                                        "harvest.ratio.krige",
+                                        "landings.tonnes",
+                                        "discard.tonnes",
+                                        "discard.rate",
+                                        "dead.discard.rate",
+                                        "mean.wt.landings",
+                                        "mean.wt.discards")])
+      
     }else{
+      
       out.ICES <- data.frame(out.all[,c("year",
                                         "adjusted.abundance",
                                         "CI95",
@@ -144,6 +182,7 @@ exploitation.table <- function(wk.dir, f.u, stock.object, international.landings
                                         "dead.discard.rate",
                                         "mean.wt.landings",
                                         "mean.wt.discards")])
+      
     }
     names(out.ICES) <- c("Year",
                          "UWTV abundance estimate",
