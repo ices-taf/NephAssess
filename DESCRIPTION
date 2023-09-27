@@ -8,11 +8,19 @@ Authors@R: c(person("Carlos", "Mesquita", role=c("aut", "cre"), email="c.mesquit
              person("Sarah", "Millar", role=c("aut")),
              person("Helen", "Dobby", role=c("aut")))
 Imports:
-    FLCore,
-    sp,
-    RODBC,
-    alphahull,
-    rgeos,
-    icesAdvice
+    sp
+  FLCore
+  RODBC
+  alphahull
+  rgeos
+  icesAdvice
+  beanplot
+  raster
+  maptools
+  mapdata
+  rgdal
+  plyr
+  dplyr
+  tidyr
 RoxygenNote: 5.0.1
 License: file LICENSE

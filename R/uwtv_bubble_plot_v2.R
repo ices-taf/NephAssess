@@ -1186,7 +1186,7 @@ uwtv_bubble_plot <- function(
            width = 280, height = 190, units = "mm", res = 350)
       par(mfrow = c(2, 3), mar = c(0, 0, 0, 0), oma = c(5.5, 3, 0.2, 0.2))
       
-      for(i in unique(FU10_tvdata$year)){
+      for(i in tail(unique(dat$year),6)){
         
         xx <- dat[dat$year == i,]
         
@@ -1275,19 +1275,19 @@ uwtv_bubble_plot <- function(
         box()
         text(-3.3, 59.6, labels = i, cex = 3, font = 2, pos = 4)
         # x-axes
-        if(i %in% c(2007, 2014, 2019)){
+        if(i %in% tail(unique(dat$year),3)){
           axis(1, at = seq(-3.8, -3.2, by = 0.3), cex.axis = 1.5, 
                labels = parse(text = sprintf("%s^o*%s", 
                                              abs(seq(-3.8, -3.2, by = 0.3)), "W")))
         }
         # y-axes
-        if(i %in% c(1994, 2007)){
+        if(i %in% matrix(tail(unique(dat$year),6),nrow=2,byrow=T)[,1]){
           axis(2, at = c(59.2, 59.5), cex.axis = 1.5,
                labels = parse(text = sprintf("%s^o*%s", 
                                              abs(c(59.2, 59.5)), "N")))
         }
         # Bubble Legend
-        if(i == (2007)){
+        if(i == tail(unique(dat$year),1)){
           legdens <- c(0.9, 0.5, 0.1)
           legRad <- sqrt(legdens/pi)
           hin <- par("pin")[2]
@@ -1330,7 +1330,7 @@ uwtv_bubble_plot <- function(
            width = 200, height = 280, units = "mm", res = 350)
       par(mfrow = c(3, 2), mar = c(0, 0, 0, 0), oma = c(5.5, 3, 0.2, 0.2))
       
-      for(i in unique(FU10_tvdata$year)){
+      for(i in tail(unique(dat$year),6)){
         
         xx <- dat[dat$year == i,]
         
@@ -1419,19 +1419,19 @@ uwtv_bubble_plot <- function(
         box()
         text(-3.3, 59.6, labels = i, cex = 3, font = 2, pos = 4)
         # x-axes
-        if(i %in% c(2014, 2019)){
+        if(i %in% tail(unique(dat$year),2)){
           axis(1, at = seq(-3.8, -3.2, by = 0.3), cex.axis = 1.5, 
                labels = parse(text = sprintf("%s^o*%s", 
                                              abs(seq(-3.8, -3.2, by = 0.3)), "W")))
         }
         # y-axes
-        if(i %in% c(1994, 2006, 2014)){
+        if(i %in% matrix(tail(unique(dat$year),6),nrow=3,byrow=T)[,1]){
           axis(2, at = c(59.2, 59.5), cex.axis = 1.5,
                labels = parse(text = sprintf("%s^o*%s", 
                                              abs(c(59.2, 59.5)), "N")))
         }
         # Bubble Legend
-        if(i == (2014)){
+        if(i == tail(unique(dat$year),1)){
           legdens <- c(0.9, 0.5, 0.1)
           legRad <- sqrt(legdens/pi)
           hin <- par("pin")[2]
