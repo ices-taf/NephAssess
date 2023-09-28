@@ -1,0 +1,25 @@
+Package: NephAssess
+Version: 1.0-0
+Date: 2018-04-01
+Title: SG Nephrops assessment functions
+Description: A collection of functions for the WGCSE and WGNSSK Nephrops assessments
+Authors@R: c(person("Carlos", "Mesquita", role=c("aut", "cre"), email="c.mesquita@marlab.ac.uk"), person("Sarah", "Millar", role=c("aut")), person("Helen",
+                 "Dobby", role=c("aut")))
+Imports: FLCore, sp, RODBC, alphahull, rgeos, icesAdvice
+RoxygenNote: 5.0.1
+License: file LICENSE
+RemoteType: github
+RemoteHost: api.github.com
+RemoteRepo: NephAssess
+RemoteUsername: ices-tools-dev
+RemoteRef: master
+RemoteSha: 85eb49dee009bb49a2f748f0d753121acee12142
+GithubRepo: NephAssess
+GithubUsername: ices-tools-dev
+GithubRef: master
+GithubSHA1: 85eb49dee009bb49a2f748f0d753121acee12142
+Author: Carlos Mesquita [aut, cre],
+  Sarah Millar [aut],
+  Helen Dobby [aut]
+Maintainer: Carlos Mesquita <c.mesquita@marlab.ac.uk>
+Built: R 4.1.3; ; 2023-04-13 15:17:42 UTC; windows
