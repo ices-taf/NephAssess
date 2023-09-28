@@ -13,6 +13,14 @@ Imports:
     RODBC,
     alphahull,
     rgeos,
-    icesAdvice
+    icesAdvice,
+    beanplot,
+    raster,
+    maptools,
+    mapdata,
+    rgdal,
+    plyr,
+    dplyr,
+    tidyr
 RoxygenNote: 5.0.1
 License: file LICENSE
