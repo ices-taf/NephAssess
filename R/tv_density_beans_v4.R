@@ -432,6 +432,102 @@ tv_density_beans <- function(TVdens, FU, wk.dir, boxes = TRUE, legend = TRUE,
         
       }
       
+    } else if(f.u %in% c("moray firth")){
+      
+      # Set up bean placement
+      ind1 <- 2*length(unique(TVdens$year))+(1*length(unique(TVdens$year))-1)
+      a <- seq(0.75, ind1*0.75, by = 0.75)
+      beanPlace <- a[-seq(3, length(a), 3)]
+      yearPlace <- .colMeans(beanPlace, 2, length(beanPlace)/2)
+      # Re-level strata factor
+      TVdens$strata_type <- factor(TVdens$strata_type, 
+                                   levels = c("SANDY MUD", "MUDDY SAND"))
+      
+      if(boxes == TRUE){
+        # Set up stratum colours
+        colList <- rep(list(c("#99835F", "#99835F", "#000000", NA),
+                            c("#C2B280", "#C2B280", "#000000", NA)), 
+                       times = length(unique(TVdens$year)))
+        
+        # Beanplot with boxplots (no staples)
+        beanplot(TVdens$average_density ~  as.factor(TVdens$strata_type) + TVdens$year,
+                 col = colList,
+                 border = c("#99835F","#C2B280"),
+                 ll = 0.05, 
+                 log = "", 
+                 method = "jitter", 
+                 cutmin = -0.01,
+                 what = c(FALSE, TRUE, TRUE, TRUE),
+                 at = beanPlace,
+                 maxwidth = 0.75,
+                 axes = FALSE,
+                 xlim = c(0,0.75+(ind1*0.75)))
+        boxplot(TVdens$average_density ~  as.factor(TVdens$strata_type) + TVdens$year, 
+                add = TRUE,
+                at = beanPlace,
+                boxwex = 0.1,
+                col = NA,
+                border = "#ffffff",
+                axes = FALSE,
+                pch = 8, 
+                cex = 0.5,
+                lwd = 1,
+                staplewex = 0,
+                lty = 1)
+        axis(1, at = yearPlace, labels = unique(TVdens$year))
+        axis(2)
+        mtext(parse(text = "Burrow~Count~per~m^2"), side = 2, line = 2.2)
+        box()
+        if(legend == TRUE){
+          legend(median(a), par()$usr[4]*1.2, 
+                 bty = "n", 
+                 pt.cex = 2, 
+                 xjust = 0.5,
+                 legend = sapply(levels(as.factor(TVdens$strata_type)), simpleCap), 
+                 # text.width = 2,
+                 pch = 19, 
+                 horiz = TRUE, 
+                 col = c("#99835F","#C2B280"))
+        }
+        
+      } else {
+        
+        # Set up stratum colours
+        colList <- rep(list(c("#99835F", "#ffffff", "#000000", NA),
+                            c("#C2B280", "#ffffff", "#000000", NA)), 
+                       times = length(unique(TVdens$year)))
+        
+        # Regular Beanplot
+        beanplot(TVdens$average_density ~  TVdens$strata_type + TVdens$year,
+                 col = colList,
+                 border = c("#99835F","#C2B280"),
+                 ll = 0.05, 
+                 log = "", 
+                 method = "jitter", 
+                 cutmin = -0.01,
+                 what = c(FALSE, TRUE, TRUE, TRUE),
+                 at = beanPlace,
+                 maxwidth = 0.75,
+                 axes = FALSE,
+                 xlim = c(0,0.75+(ind1*0.75)))
+        axis(1, at = yearPlace, labels = unique(TVdens$year))
+        axis(2)
+        mtext(parse(text = "Burrow~Count~per~m^2"), side = 2, line = 2.2)
+        box()
+        if(legend == TRUE){
+          legend(median(a), par()$usr[4]*1.2, 
+                 bty = "n", 
+                 pt.cex = 2, 
+                 xjust = 0.5,
+                 legend = sapply(levels(as.factor(TVdens$strata_type)), simpleCap), 
+                 # text.width = 2,
+                 pch = 19, 
+                 horiz = TRUE, 
+                 col = c("#99835F","#C2B280"))
+        }
+        
+      }
+      
     } else if(f.u %in% c("noup")){
       
       if(boxes == TRUE){
